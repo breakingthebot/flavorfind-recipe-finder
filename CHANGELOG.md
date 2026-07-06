@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-06
+
+### Added
+- Created [src/utils/cookModeUtils.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/cookModeUtils.js) to parse instruction text durations using RegEx.
+- Built [src/components/CookModeModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/CookModeModal.jsx) walkthrough layout equipped with countdown timers, Web Audio beep chimes, screen flashing triggers, and browser Web Speech hands-free commands.
+- Wired a new "👨‍🍳 Cook Mode" start action button in [src/components/RecipeCard.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeCard.jsx).
+- Added 4 tests in [tests/utils/cookModeUtils.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/utils/cookModeUtils.test.js) checking duration extractions.
+
+### Changed
+- Configured [src/components/RecipeList.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeList.jsx) to relay cook commands.
+- Updated [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) to mount and manage `CookModeModal` states.
+- Appended cook mode visual overlay, pulsing warnings, and responsive layout selectors to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.2.0] - 2026-07-06
 
 ### Added

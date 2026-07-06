@@ -14,7 +14,7 @@ import React, { useState } from 'react';
  * @param {Function} props.onToggleFav - Callback function to toggle favorite status.
  * @param {Function} [props.onDelete] - Callback function to delete a custom recipe.
  */
-export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete }) {
+export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCook }) {
   const [showInstructions, setShowInstructions] = useState(false);
 
   const getDifficultyClass = (diff) => {
@@ -93,13 +93,23 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete }) {
           </ul>
         </div>
 
-        <button 
-          className={`toggle-instructions-btn ${showInstructions ? 'active' : ''}`}
-          onClick={() => setShowInstructions(!showInstructions)}
-          id={`toggle-instructions-${recipe.id}`}
-        >
-          {showInstructions ? 'Hide Instructions' : 'Show Instructions'}
-        </button>
+        <div className="recipe-actions-row">
+          <button 
+            className={`toggle-instructions-btn ${showInstructions ? 'active' : ''}`}
+            onClick={() => setShowInstructions(!showInstructions)}
+            id={`toggle-instructions-${recipe.id}`}
+          >
+            {showInstructions ? 'Hide Instructions' : 'Show Instructions'}
+          </button>
+          
+          <button
+            className="start-cooking-btn"
+            onClick={() => onCook && onCook(recipe)}
+            id={`start-cooking-${recipe.id}`}
+          >
+            👨‍🍳 Cook Mode
+          </button>
+        </div>
 
         {showInstructions && (
           <div className="recipe-instructions-section">

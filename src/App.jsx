@@ -9,6 +9,7 @@ import RecipeList from './components/RecipeList.jsx';
 import FavoritesList from './components/FavoritesList.jsx';
 import RecipeForm from './components/RecipeForm.jsx';
 import ShoppingListModal from './components/ShoppingListModal.jsx';
+import CookModeModal from './components/CookModeModal.jsx';
 import { 
   getRecipes, 
   searchRecipes, 
@@ -30,6 +31,8 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
+  const [isCookModeOpen, setIsCookModeOpen] = useState(false);
+  const [activeCookRecipe, setActiveCookRecipe] = useState(null);
   
   // Shopping list selection state (array of recipe IDs)
   const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
@@ -116,6 +119,12 @@ export default function App() {
     );
   };
 
+  // Handle starting Cook Mode
+  const handleStartCooking = (recipe) => {
+    setActiveCookRecipe(recipe);
+    setIsCookModeOpen(true);
+  };
+
   return (
     <div className="app-container">
       {/* Header Bar */}
@@ -183,6 +192,7 @@ export default function App() {
             favorites={favorites} 
             onToggleFav={handleToggleFav} 
             onDelete={handleDeleteRecipe}
+            onCook={handleStartCooking}
           />
         </section>
       </main>
@@ -215,6 +225,13 @@ export default function App() {
         onClose={() => setIsShoppingListOpen(false)}
         selectedRecipes={recipes.filter(r => selectedRecipesForList.includes(r.id))}
         onCopySuccess={showToast}
+      />
+
+      {/* Fullscreen Cook Mode walkthrough overlay */}
+      <CookModeModal
+        isOpen={isCookModeOpen}
+        onClose={() => setIsCookModeOpen(false)}
+        recipe={activeCookRecipe}
       />
 
       {/* Footer */}

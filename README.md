@@ -45,6 +45,7 @@ The application is structured around a strict separation of concerns, decoupling
 - **Utilities**:
   - `src/utils/filterUtils.js`: Handles string normalization, strict matching, and dietary filters.
   - `src/utils/shoppingListUtils.js`: Normalizes units, evaluates fractional quantities, assigns departments, and aggregates duplicate ingredients.
+  - `src/utils/cookModeUtils.js`: Extracts step instruction durations (seconds) using RegEx patterns.
 - **Logging (`src/utils/logger.js`)**: A custom level-based logger (DEBUG, INFO, WARN, ERROR) used to track application flow and debug state mutations cleanly without standard `console.log` pollution.
 - **Services (`src/services/recipeService.js`)**: Functions as the data and state access layer. It handles looking up combined mock and custom recipes, searching them, and syncing both favorites and custom recipes to `localStorage`.
 - **Components (`src/components/`)**: Atomic, reusable React components:
@@ -54,10 +55,11 @@ The application is structured around a strict separation of concerns, decoupling
   - `FavoritesList`: Displays favorited recipes in a slide-out drawer with selection checkboxes.
   - `RecipeForm`: An overlay modal containing form elements, client validations, and dynamic list inputs.
   - `ShoppingListModal`: Renders aggregated shopping checklist items, handles copy-to-clipboard and browser print overrides.
-- **App Layout (`src/App.jsx` & `src/App.css`)**: Serves as the central coordinator for state synchronization, synchronization of favorites deletions, toast alerts, HSL styling, and printer layout formatting.
+  - `CookModeModal`: Fullscreen step-by-step cooking guide with step countdown timers, Web Audio beep chimes, and browser hands-free voice commands.
+- **App Layout (`src/App.jsx` & `src/App.css`)**: Serves as the central coordinator for state synchronization, synchronization of favorites deletions, toast alerts, Cook Mode active selections, HSL styling, and printer layout formatting.
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (37 total unit tests).
+- 100% test coverage on the utility, model, and service layers (41 total unit tests).
 
 
