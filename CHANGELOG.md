@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-06
+
+### Added
+- Created [src/utils/shoppingListUtils.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/shoppingListUtils.js) to parse fractional/decimal units and consolidate ingredients by category (Produce, Dairy, Pantry, Spices).
+- Built [src/components/ShoppingListModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/ShoppingListModal.jsx) overlay supporting checks, text copier, and print triggers.
+- Appended checkboxes and bulk Select/Clear actions in [src/components/FavoritesList.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/FavoritesList.jsx).
+- Added 10 unit tests in [tests/utils/shoppingListUtils.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/utils/shoppingListUtils.test.js) checking division, normalization, and aggregation rules.
+
+### Changed
+- Updated [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) to coordinate list selection states and sync selections upon favorite removals.
+- Appended styling selectors and print-only media overrides to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css) to format printed lists.
+
 ## [1.1.0] - 2026-07-06
 
 ### Added

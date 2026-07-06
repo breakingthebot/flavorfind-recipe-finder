@@ -811,6 +811,327 @@
   color: var(--text-muted);
 }
 
+/* Favorites actions bar */
+.favorites-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.bulk-action-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  transition: var(--transition-smooth);
+}
+
+.bulk-action-btn:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Sidebar Footer & Generate Button */
+.favorites-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-sidebar);
+}
+
+.generate-list-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 12px var(--accent-bg);
+}
+
+.generate-list-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(170, 59, 255, 0.4);
+}
+
+.generate-list-btn:disabled {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Checkbox alignment in favorites */
+.favorite-item-card {
+  padding-left: 0.5rem; /* make room for checkbox */
+}
+
+/* Custom Checkbox Design */
+.checkbox-container {
+  display: inline-block;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  transition: var(--transition-smooth);
+}
+
+.checkbox-container:hover input ~ .checkbox-checkmark {
+  border-color: var(--primary);
+  background-color: var(--primary-glow);
+}
+
+.checkbox-container input:checked ~ .checkbox-checkmark {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.checkbox-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-container input:checked ~ .checkbox-checkmark:after {
+  display: block;
+}
+
+.checkbox-container .checkbox-checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Shopping List Modal Styling */
+.text-action-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.text-action-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--primary-glow);
+}
+
+.shopping-list-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.no-items-text {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem 0;
+}
+
+.shopping-category-block {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.shopping-category-block:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.shopping-category-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.shopping-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shopping-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  transition: var(--transition-smooth);
+}
+
+.shopping-item-row.checked .shopping-item-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
+.shopping-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.shopping-item-name {
+  font-size: 0.95rem;
+  color: var(--text-h);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.qty-badge {
+  background: var(--primary-glow);
+  color: var(--primary);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.alt-qty-badge {
+  background: var(--accent-bg);
+  color: var(--accent);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.item-name-text {
+  text-transform: capitalize;
+}
+
+.shopping-item-source {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Print utilities */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-friendly, .print-friendly * {
+    visibility: visible;
+  }
+  .print-friendly {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-header {
+    text-align: left;
+    margin-bottom: 2rem;
+  }
+  .print-header h2 {
+    margin: 0 0 0.5rem 0;
+    color: #000;
+  }
+  .print-header p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  .print-checkbox {
+    font-family: monospace;
+    font-weight: bold;
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+  }
+  .shopping-category-title {
+    color: #000 !important;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.25rem;
+    margin-top: 1.5rem;
+  }
+  .shopping-item-row {
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem 0;
+  }
+  .qty-badge, .alt-qty-badge {
+    background: transparent !important;
+    color: #000 !important;
+    padding: 0 !important;
+    font-weight: bold;
+  }
+  .shopping-item-name {
+    color: #000 !important;
+  }
+}
+
+
 /* Header actions layout */
 .header-actions {
   display: flex;

@@ -1,5 +1,5 @@
 // src/App.jsx
-// Main application component coordinating layout, state, recipe searches, custom recipe form modal, and favorites.
+// Main application component coordinating layout, state, recipe searches, custom recipe form modal, favorites, and shopping list.
 // Connects to: src/components/*, src/services/recipeService.js, src/utils/logger.js
 // Created: 2026-07-06
 
@@ -8,6 +8,7 @@ import SearchFilters from './components/SearchFilters.jsx';
 import RecipeList from './components/RecipeList.jsx';
 import FavoritesList from './components/FavoritesList.jsx';
 import RecipeForm from './components/RecipeForm.jsx';
+import ShoppingListModal from './components/ShoppingListModal.jsx';
 import { 
   getRecipes, 
   searchRecipes, 
@@ -28,15 +29,19 @@ export default function App() {
   const [favorites, setFavorites] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
+  
+  // Shopping list selection state (array of recipe IDs)
+  const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
   
   // Notification Toast state
   const [toast, setToast] = useState(null);
 
   // Helper to trigger transient success/error messages
-  const showToast = (message, type = 'success') => {
+  const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
-  };
+  }, []);
 
   // Load data (wrapped in useCallback to prevent re-creation)
   const loadData = useCallback(() => {
@@ -49,6 +54,11 @@ export default function App() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Synchronize selection state with favorites
+  useEffect(() => {
+    setSelectedRecipesForList(prev => prev.filter(id => favorites.includes(id)));
+  }, [favorites]);
 
   // Update filtered recipes when search parameters change
   useEffect(() => {
@@ -97,6 +107,13 @@ export default function App() {
     } catch (error) {
       showToast(error.message, 'error');
     }
+  };
+
+  // Handle selecting a recipe for the shopping list
+  const handleToggleSelectRecipe = (id) => {
+    setSelectedRecipesForList(prev =>
+      prev.includes(id) ? prev.filter(recipeId => recipeId !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -177,6 +194,12 @@ export default function App() {
         onToggleFav={handleToggleFav}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        selectedItems={selectedRecipesForList}
+        onToggleSelect={handleToggleSelectRecipe}
+        onGenerateList={() => {
+          setIsSidebarOpen(false);
+          setIsShoppingListOpen(true);
+        }}
       />
 
       {/* Create Custom Recipe Modal Form */}
@@ -184,6 +207,14 @@ export default function App() {
         onSubmit={handleCreateRecipe}
         onClose={() => setIsFormOpen(false)}
         isOpen={isFormOpen}
+      />
+
+      {/* Consolidated Shopping List Modal */}
+      <ShoppingListModal
+        isOpen={isShoppingListOpen}
+        onClose={() => setIsShoppingListOpen(false)}
+        selectedRecipes={recipes.filter(r => selectedRecipesForList.includes(r.id))}
+        onCopySuccess={showToast}
       />
 
       {/* Footer */}
