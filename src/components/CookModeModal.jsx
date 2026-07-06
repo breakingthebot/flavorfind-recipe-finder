@@ -46,9 +46,9 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
   // Audio beep and screen flashing alert
   const triggerTimerAlert = useCallback(() => {
     setTimerAlert(true);
-    logger.info('Timer finished in Cook Mode', { recipeName: recipe.name, stepIdx: currentStepIdx });
+    logger.info('Timer finished in Cook Mode', { recipeName: recipe?.name, stepIdx: currentStepIdx });
     playBeepChime();
-  }, [recipe.name, currentStepIdx]);
+  }, [recipe?.name, currentStepIdx]);
 
   // Parse and setup timers when step changes
   useEffect(() => {
