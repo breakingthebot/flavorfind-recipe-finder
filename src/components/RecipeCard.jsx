@@ -12,8 +12,9 @@ import React, { useState } from 'react';
  * @param {Object} props.recipe - The recipe data object.
  * @param {boolean} props.isFav - Whether the recipe is in the favorites list.
  * @param {Function} props.onToggleFav - Callback function to toggle favorite status.
+ * @param {Function} [props.onDelete] - Callback function to delete a custom recipe.
  */
-export default function RecipeCard({ recipe, isFav, onToggleFav }) {
+export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete }) {
   const [showInstructions, setShowInstructions] = useState(false);
 
   const getDifficultyClass = (diff) => {
@@ -25,11 +26,29 @@ export default function RecipeCard({ recipe, isFav, onToggleFav }) {
     }
   };
 
+  const isCustom = recipe.id && String(recipe.id).startsWith('custom_');
+
   return (
     <div className="recipe-card" id={`recipe-card-${recipe.id}`}>
       <div className="recipe-image-container">
         <img src={recipe.imageUrl} alt={recipe.name} className="recipe-image" loading="lazy" />
         <div className="recipe-image-overlay"></div>
+        
+        {isCustom && onDelete && (
+          <button
+            onClick={() => {
+              if (window.confirm(`Are you sure you want to delete "${recipe.name}"?`)) {
+                onDelete(recipe.id);
+              }
+            }}
+            className="delete-recipe-btn"
+            title="Delete custom recipe"
+            aria-label="Delete recipe"
+          >
+            🗑️
+          </button>
+        )}
+
         <button 
           onClick={() => onToggleFav(recipe.id)} 
           className={`favorite-btn ${isFav ? 'active' : ''}`}

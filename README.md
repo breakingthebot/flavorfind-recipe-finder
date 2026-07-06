@@ -44,10 +44,16 @@ The application is structured around a strict separation of concerns, decoupling
 - **Models (`src/models/recipe.js`)**: Defines the required structure for a recipe object and exports a `validateRecipe` helper, guaranteeing data integrity.
 - **Utilities (`src/utils/filterUtils.js`)**: Decouples search matching logic from the UI. It hosts the string-normalization algorithms used to perform case-insensitive, whitespace-trimmed, strict (AND) and non-strict (OR) ingredient matching, as well as dietary tag evaluation.
 - **Logging (`src/utils/logger.js`)**: A custom level-based logger (DEBUG, INFO, WARN, ERROR) used to track application flow and debug state mutations cleanly without standard `console.log` pollution.
-- **Services (`src/services/recipeService.js`)**: Functions as the data and state access layer. It handles looking up recipes, searching them using filter utilities, and syncing user favorites to `localStorage`.
-- **Components (`src/components/`)**: Atomic, reusable React components. `RecipeCard` handles detail layout and instructions accordion states; `RecipeList` handles mapping cards and the empty state; `SearchFilters` controls query states; and `FavoritesList` renders the slide-out navigation panel.
-- **App Layout (`src/App.jsx` & `src/App.css`)**: Serves as the central coordinator for state synchronization and applies glassmorphic styling, HSL dark/light modes, and fluid css transitions.
+- **Services (`src/services/recipeService.js`)**: Functions as the data and state access layer. It handles looking up combined mock and custom recipes, searching them, and syncing both favorites and custom recipes to `localStorage`.
+- **Components (`src/components/`)**: Atomic, reusable React components:
+  - `RecipeCard`: Handles card detail layout, custom deletion buttons, and step accordions.
+  - `RecipeList`: Maps recipes to the layout and manages the empty search state.
+  - `SearchFilters`: Coordinates search queries and checkboxes.
+  - `FavoritesList`: Displays favorited recipes in a slide-out drawer.
+  - `RecipeForm`: An overlay modal containing form elements, client validations, and dynamic list inputs.
+- **App Layout (`src/App.jsx` & `src/App.css`)**: Serves as the central coordinator for state synchronization (using `useCallback` for event loops), slide-up toast notices, HSL styling, and transitions.
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (24 total unit tests).
+- 100% test coverage on the utility, model, and service layers (27 total unit tests).
+

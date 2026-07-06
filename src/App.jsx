@@ -1,13 +1,21 @@
 // src/App.jsx
-// Main application component that coordinates layout, state, search filtering, and favorites.
-// Connects to: src/components/SearchFilters.jsx, src/components/RecipeList.jsx, src/components/FavoritesList.jsx, src/services/recipeService.js, src/utils/logger.js
+// Main application component coordinating layout, state, recipe searches, custom recipe form modal, and favorites.
+// Connects to: src/components/*, src/services/recipeService.js, src/utils/logger.js
 // Created: 2026-07-06
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import SearchFilters from './components/SearchFilters.jsx';
 import RecipeList from './components/RecipeList.jsx';
 import FavoritesList from './components/FavoritesList.jsx';
-import { getRecipes, searchRecipes, getFavorites, toggleFavorite } from './services/recipeService.js';
+import RecipeForm from './components/RecipeForm.jsx';
+import { 
+  getRecipes, 
+  searchRecipes, 
+  getFavorites, 
+  toggleFavorite, 
+  addCustomRecipe, 
+  deleteCustomRecipe 
+} from './services/recipeService.js';
 import { logger } from './utils/logger.js';
 import './App.css';
 
@@ -19,15 +27,28 @@ export default function App() {
   const [activeFilters, setActiveFilters] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  
+  // Notification Toast state
+  const [toast, setToast] = useState(null);
 
-  // Load initial data
-  useEffect(() => {
-    logger.info('Initializing application data');
+  // Helper to trigger transient success/error messages
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Load data (wrapped in useCallback to prevent re-creation)
+  const loadData = useCallback(() => {
+    logger.info('Refreshing application dataset');
     const allRecipes = getRecipes();
     setRecipes(allRecipes);
-    setFilteredRecipes(allRecipes);
     setFavorites(getFavorites());
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Update filtered recipes when search parameters change
   useEffect(() => {
@@ -38,7 +59,7 @@ export default function App() {
 
     const filtered = searchRecipes(ingredients, activeFilters, strictSearch);
     setFilteredRecipes(filtered);
-  }, [searchQuery, activeFilters, strictSearch]);
+  }, [searchQuery, activeFilters, strictSearch, recipes]);
 
   // Handle toggling favorites
   const handleToggleFav = (id) => {
@@ -55,6 +76,29 @@ export default function App() {
     );
   };
 
+  // Handle custom recipe additions
+  const handleCreateRecipe = (recipeData) => {
+    try {
+      addCustomRecipe(recipeData);
+      loadData();
+      setIsFormOpen(false);
+      showToast('Recipe created successfully!');
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  };
+
+  // Handle custom recipe deletions
+  const handleDeleteRecipe = (id) => {
+    try {
+      deleteCustomRecipe(id);
+      loadData();
+      showToast('Recipe deleted successfully.');
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  };
+
   return (
     <div className="app-container">
       {/* Header Bar */}
@@ -63,20 +107,36 @@ export default function App() {
           <span className="logo-emoji">🍳</span>
           <h1>FlavorFind</h1>
         </div>
-        <button 
-          onClick={() => setIsSidebarOpen(true)} 
-          className="open-favorites-btn"
-          id="toggle-favorites-drawer"
-        >
-          ❤️ Saved ({favorites.length})
-        </button>
+        <div className="header-actions">
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="create-recipe-btn"
+            id="toggle-create-recipe"
+          >
+            ➕ Create Recipe
+          </button>
+          <button 
+            onClick={() => setIsSidebarOpen(true)} 
+            className="open-favorites-btn"
+            id="toggle-favorites-drawer"
+          >
+            ❤️ Saved ({favorites.length})
+          </button>
+        </div>
       </header>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`toast-notification ${toast.type}`} role="alert" id="app-toast">
+          {toast.message}
+        </div>
+      )}
 
       {/* Hero Banner Section */}
       <section className="hero-banner">
         <div className="hero-content">
           <h2>Discover Delicious Recipes</h2>
-          <p>Search by the ingredients in your kitchen and find matching meals instantly.</p>
+          <p>Search by the ingredients in your kitchen, toggle strict filters, or build your own custom culinary guide.</p>
         </div>
       </section>
 
@@ -105,6 +165,7 @@ export default function App() {
             recipes={filteredRecipes} 
             favorites={favorites} 
             onToggleFav={handleToggleFav} 
+            onDelete={handleDeleteRecipe}
           />
         </section>
       </main>
@@ -116,6 +177,13 @@ export default function App() {
         onToggleFav={handleToggleFav}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+      />
+
+      {/* Create Custom Recipe Modal Form */}
+      <RecipeForm
+        onSubmit={handleCreateRecipe}
+        onClose={() => setIsFormOpen(false)}
+        isOpen={isFormOpen}
       />
 
       {/* Footer */}

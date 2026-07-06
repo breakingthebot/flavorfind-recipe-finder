@@ -9,6 +9,7 @@ import { logger } from '../utils/logger.js';
 
 // Standard storage key for favorites
 const FAVORITES_KEY = 'recipe_finder_favorites';
+const CUSTOM_RECIPES_KEY = 'recipe_finder_custom_recipes';
 
 // High-quality mock data representing premium recipes
 const MOCK_RECIPES = [
@@ -95,16 +96,34 @@ const MOCK_RECIPES = [
 ];
 
 /**
- * Gets the raw list of mock recipes.
- * @returns {Object[]} The array of recipe objects.
+ * Retrieves the custom recipes from localStorage.
+ * @returns {Object[]} The custom recipes list.
  */
-export function getRecipes() {
-  logger.debug('Fetching all recipes', { count: MOCK_RECIPES.length });
-  return MOCK_RECIPES;
+export function getCustomRecipes() {
+  try {
+    const stored = localStorage.getItem(CUSTOM_RECIPES_KEY);
+    const custom = stored ? JSON.parse(stored) : [];
+    logger.debug('Retrieved custom recipes from localStorage', { count: custom.length });
+    return custom;
+  } catch (error) {
+    logger.error('Failed to parse custom recipes from localStorage', { error: error.message });
+    return [];
+  }
 }
 
 /**
- * Searches and filters recipes.
+ * Gets the consolidated list of recipes (custom + mock).
+ * @returns {Object[]} The array of recipe objects.
+ */
+export function getRecipes() {
+  const custom = getCustomRecipes();
+  const all = [...custom, ...MOCK_RECIPES];
+  logger.debug('Fetching all recipes', { count: all.length, customCount: custom.length });
+  return all;
+}
+
+/**
+ * Searches and filters combined recipes.
  * 
  * @param {string[]} [ingredients=[]] - List of search ingredients.
  * @param {string[]} [dietaryFilters=[]] - List of active dietary filters.
@@ -114,8 +133,10 @@ export function getRecipes() {
 export function searchRecipes(ingredients = [], dietaryFilters = [], strictSearch = false) {
   logger.info('Searching recipes', { ingredients, dietaryFilters, strictSearch });
   
-  // Validate mock recipes
-  const validRecipes = MOCK_RECIPES.filter(recipe => {
+  const allRecipes = getRecipes();
+  
+  // Validate all recipes
+  const validRecipes = allRecipes.filter(recipe => {
     const isValid = validateRecipe(recipe);
     if (!isValid) {
       logger.warn('Skipping invalid recipe during search', { id: recipe.id, name: recipe.name });
@@ -128,6 +149,73 @@ export function searchRecipes(ingredients = [], dietaryFilters = [], strictSearc
     const matchesDiet = matchDietaryFilters(recipe.dietaryFlags, dietaryFilters);
     return matchesIng && matchesDiet;
   });
+}
+
+/**
+ * Adds a new custom recipe to localStorage.
+ * 
+ * @param {Object} recipeData - The recipe input properties.
+ * @returns {Object} The validated and saved recipe object.
+ */
+export function addCustomRecipe(recipeData) {
+  const id = `custom_${Date.now()}`;
+  
+  // Default fallback image
+  const imageUrl = recipeData.imageUrl && recipeData.imageUrl.trim()
+    ? recipeData.imageUrl.trim()
+    : 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=80';
+
+  const newRecipe = {
+    ...recipeData,
+    id,
+    imageUrl,
+    ingredients: (recipeData.ingredients || []).map(i => i.trim()).filter(i => i.length > 0),
+    dietaryFlags: (recipeData.dietaryFlags || []).map(f => f.trim().toLowerCase()).filter(f => f.length > 0),
+    instructions: (recipeData.instructions || []).map(s => s.trim()).filter(s => s.length > 0)
+  };
+
+  if (!validateRecipe(newRecipe)) {
+    logger.warn('Failed validation for new custom recipe', { name: newRecipe.name });
+    throw new Error('Invalid recipe structure. Ensure all fields are filled.');
+  }
+
+  try {
+    const custom = getCustomRecipes();
+    const updated = [newRecipe, ...custom];
+    localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(updated));
+    logger.info('Successfully added new custom recipe', { id, name: newRecipe.name });
+    return newRecipe;
+  } catch (error) {
+    logger.error('Failed to save new custom recipe', { error: error.message });
+    throw new Error('Failed to save recipe. Storage limit exceeded.');
+  }
+}
+
+/**
+ * Deletes a custom recipe by ID.
+ * 
+ * @param {string} recipeId - The ID of the recipe.
+ * @returns {Object[]} The updated custom recipes list.
+ */
+export function deleteCustomRecipe(recipeId) {
+  try {
+    const custom = getCustomRecipes();
+    const updated = custom.filter(r => r.id !== recipeId);
+    localStorage.setItem(CUSTOM_RECIPES_KEY, JSON.stringify(updated));
+    logger.info('Deleted custom recipe', { recipeId });
+    
+    // Also remove from favorites if favorited
+    const favorites = getFavorites();
+    if (favorites.includes(recipeId)) {
+      const updatedFavs = favorites.filter(id => id !== recipeId);
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavs));
+    }
+    
+    return updated;
+  } catch (error) {
+    logger.error('Failed to delete custom recipe', { recipeId, error: error.message });
+    throw new Error('Failed to delete recipe.');
+  }
 }
 
 /**

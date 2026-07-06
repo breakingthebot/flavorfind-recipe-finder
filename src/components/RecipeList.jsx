@@ -13,8 +13,9 @@ import RecipeCard from './RecipeCard.jsx';
  * @param {Object[]} props.recipes - List of recipes to display.
  * @param {string[]} props.favorites - List of favorited recipe IDs.
  * @param {Function} props.onToggleFav - Callback function to toggle favorite status.
+ * @param {Function} [props.onDelete] - Callback function to delete a custom recipe.
  */
-export default function RecipeList({ recipes, favorites, onToggleFav }) {
+export default function RecipeList({ recipes, favorites, onToggleFav, onDelete }) {
   if (recipes.length === 0) {
     return (
       <div className="empty-state" id="recipes-empty-state">
@@ -33,6 +34,7 @@ export default function RecipeList({ recipes, favorites, onToggleFav }) {
           recipe={recipe}
           isFav={favorites.includes(recipe.id)}
           onToggleFav={onToggleFav}
+          onDelete={onDelete}
         />
       ))}
     </div>
