@@ -3,7 +3,7 @@
 // Connects to: src/components/*, src/services/recipeService.js, src/utils/logger.js
 // Created: 2026-07-06
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import SearchFilters from './components/SearchFilters.jsx';
 import RecipeList from './components/RecipeList.jsx';
 import FavoritesList from './components/FavoritesList.jsx';
