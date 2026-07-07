@@ -10,6 +10,12 @@ import {
   saveVoiceConfig, 
   matchVoiceCommand 
 } from '../services/voiceConfigService.js';
+import { 
+  convertMeasurement, 
+  getIngredientSubstitution, 
+  CONVERSION_GROUPS, 
+  getFullSubstitutionsDb 
+} from '../services/conversionService.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -32,6 +38,70 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
   // Configuration States
   const [voiceConfig, setVoiceConfig] = useState(getVoiceConfig());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Kitchen Tools (Conversions and Substitutions) States
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [convertVal, setConvertVal] = useState(1);
+  const [convertFrom, setConvertFrom] = useState('g');
+  const [convertTo, setConvertTo] = useState('oz');
+  const [convertResult, setConvertResult] = useState(null);
+  const [subSearchQuery, setSubSearchQuery] = useState('');
+  const [subResult, setSubResult] = useState(null);
+
+  // Helper to determine the group of a unit
+  const getCompatibleUnits = (unit) => {
+    if (CONVERSION_GROUPS.weight.includes(unit)) return CONVERSION_GROUPS.weight;
+    if (CONVERSION_GROUPS.volume.includes(unit)) return CONVERSION_GROUPS.volume;
+    if (CONVERSION_GROUPS.temperature.includes(unit)) return CONVERSION_GROUPS.temperature;
+    return [];
+  };
+
+  // Convert whenever parameters change
+  useEffect(() => {
+    if (convertVal !== '' && !isNaN(convertVal)) {
+      const res = convertMeasurement(Number(convertVal), convertFrom, convertTo);
+      setConvertResult(res);
+    } else {
+      setConvertResult(null);
+    }
+  }, [convertVal, convertFrom, convertTo]);
+
+  // Perform substitution lookup when search changes
+  useEffect(() => {
+    if (subSearchQuery.trim()) {
+      const match = getIngredientSubstitution(subSearchQuery);
+      setSubResult(match);
+    } else {
+      setSubResult(null);
+    }
+  }, [subSearchQuery]);
+
+  // Handler for changing source unit (keeps "to" unit compatible)
+  const handleFromUnitChange = (newFrom) => {
+    setConvertFrom(newFrom);
+    const compatible = getCompatibleUnits(newFrom);
+    if (!compatible.includes(convertTo) || convertTo === newFrom) {
+      const defaultTo = compatible.find(u => u !== newFrom) || newFrom;
+      setConvertTo(defaultTo);
+    }
+  };
+
+  // Compute substitutions for ingredients in the current recipe
+  const activeRecipeSubs = recipe
+    ? (recipe.ingredients || [])
+        .map(ingText => {
+          const textLower = ingText.toLowerCase();
+          const matchKey = Object.keys(getFullSubstitutionsDb()).find(key => textLower.includes(key));
+          if (matchKey) {
+            return {
+              originalText: ingText,
+              sub: { name: matchKey, ...getFullSubstitutionsDb()[matchKey] }
+            };
+          }
+          return null;
+        })
+        .filter(item => item !== null)
+    : [];
 
   // Temporary Edit Form States
   const [tempChime, setTempChime] = useState(voiceConfig.chime);
@@ -328,6 +398,14 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
             </button>
           )}
           <button
+            onClick={() => setIsToolsOpen(true)}
+            className="cook-tools-btn"
+            id="toggle-cook-tools"
+            title="Convert measurements and find substitutions"
+          >
+            🧮 Kitchen Tools
+          </button>
+          <button
             onClick={() => setIsSettingsOpen(true)}
             className="cook-settings-btn"
             id="toggle-cook-settings"
@@ -550,6 +628,125 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
               >
                 Save Settings
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Kitchen Tools Overlay Form */}
+      {isToolsOpen && (
+        <div className="cook-settings-modal-overlay" id="cook-tools-panel">
+          <div className="cook-settings-modal-card">
+            <div className="cook-settings-header">
+              <h3>🧮 Kitchen Tools & Substitution Advisor</h3>
+              <button onClick={() => setIsToolsOpen(false)} className="close-settings-btn" aria-label="Close tools">✕</button>
+            </div>
+            
+            <div className="cook-settings-body">
+              {/* Unit Converter Section */}
+              <div className="tools-section">
+                <h4>⚖️ Measurement Converter</h4>
+                <div className="converter-grid">
+                  <div className="converter-input-group">
+                    <label htmlFor="convert-value">Amount</label>
+                    <input 
+                      type="number" 
+                      id="convert-value" 
+                      value={convertVal} 
+                      onChange={(e) => setConvertVal(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="voice-mapping-input"
+                    />
+                  </div>
+                  
+                  <div className="converter-input-group">
+                    <label htmlFor="convert-from-unit">From</label>
+                    <select 
+                      id="convert-from-unit"
+                      value={convertFrom}
+                      onChange={(e) => handleFromUnitChange(e.target.value)}
+                      className="chime-dropdown-select"
+                    >
+                      <optgroup label="Weight">
+                        {CONVERSION_GROUPS.weight.map(u => <option key={u} value={u}>{u}</option>)}
+                      </optgroup>
+                      <optgroup label="Volume">
+                        {CONVERSION_GROUPS.volume.map(u => <option key={u} value={u}>{u}</option>)}
+                      </optgroup>
+                      <optgroup label="Temperature">
+                        {CONVERSION_GROUPS.temperature.map(u => <option key={u} value={u}>{u}</option>)}
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  <div className="converter-input-group">
+                    <label htmlFor="convert-to-unit">To</label>
+                    <select 
+                      id="convert-to-unit"
+                      value={convertTo}
+                      onChange={(e) => setConvertTo(e.target.value)}
+                      className="chime-dropdown-select"
+                    >
+                      {getCompatibleUnits(convertFrom).map(u => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {convertResult !== null && (
+                  <div className="converter-result-badge" id="conversion-result">
+                    🎯 Result: <strong>{convertResult} {convertTo}</strong>
+                  </div>
+                )}
+              </div>
+
+              {/* Substitution Advisor Section */}
+              <div className="tools-section">
+                <h4>🔍 Ingredient Substitutions</h4>
+                
+                {/* Active Recipe Ingredients Highlight */}
+                {activeRecipeSubs.length > 0 && (
+                  <div className="active-subs-container">
+                    <h5>Missing something? Substitutes in this recipe:</h5>
+                    <ul className="active-subs-list">
+                      {activeRecipeSubs.map((item, idx) => (
+                        <li key={idx} className="active-sub-item">
+                          <span className="sub-recipe-ing"><strong>{item.sub.name}</strong> (in: <em>{item.originalText}</em>)</span>
+                          <span className="sub-text">👉 Use: {item.sub.alternatives} ({item.sub.ratio})</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="mapping-input-group" style={{ marginTop: '1rem' }}>
+                  <label htmlFor="sub-search">Search other ingredients</label>
+                  <input 
+                    type="text" 
+                    id="sub-search"
+                    value={subSearchQuery}
+                    onChange={(e) => setSubSearchQuery(e.target.value)}
+                    placeholder="e.g. egg, butter, buttermilk..."
+                    className="voice-mapping-input"
+                  />
+                </div>
+
+                {subResult && (
+                  <div className="sub-result-card" id="substitution-result">
+                    <h5>💡 Substitute for: <strong>{subResult.name}</strong></h5>
+                    <p><strong>Alternatives:</strong> {subResult.alternatives}</p>
+                    <p><strong>Ratio/Note:</strong> {subResult.ratio}</p>
+                  </div>
+                )}
+
+                {!subResult && subSearchQuery.trim() && (
+                  <p className="no-sub-found-text">No standard substitute found in database. Try searching for flour, egg, milk, or butter.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="cook-settings-footer">
+              <button onClick={() => setIsToolsOpen(false)} className="settings-btn save">Close Tools</button>
             </div>
           </div>
         </div>

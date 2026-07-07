@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-07-06
+
+### Added
+- Created [src/services/conversionService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/conversionService.js) managing weight (g, kg, oz, lb), volume (ml, cup, tbsp, tsp, fl oz), and temperature (C, F) conversions, and fuzzy substitutions advisor index.
+- Created [tests/services/conversionService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/conversionService.test.js) validating metric/imperial math, temperature formulas, and fuzzy matches (now totaling 76 passing unit tests).
+
+### Changed
+- Integrated kitchen tools in [src/components/CookModeModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/CookModeModal.jsx) rendering live interactive unit converters, active recipe substitutions highlights, and general substitute search inputs.
+- Refactored [src/services/apiService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/apiService.js) to return flat strings instead of objects for external recipe ingredients, matching the internal schema and resolving potential rendering crashes.
+- Appended styling rules to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css) for kitchen tools select dropdowns, grid layouts, and active substitutes containers.
+
 ## [1.8.0] - 2026-07-06
 
 ### Added

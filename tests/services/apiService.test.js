@@ -50,7 +50,7 @@ describe('apiService', () => {
     expect(results[0].id).toBe('external_mealdb_1111');
     expect(results[0].name).toBe('Test Chicken Dish');
     expect(results[0].ingredients).toHaveLength(2);
-    expect(results[0].ingredients[0]).toEqual({ name: 'chicken', quantity: '500g' });
+    expect(results[0].ingredients[0]).toBe('500g chicken');
     expect(results[0].instructions).toEqual(['Cook chicken', 'Eat']);
   });
 
@@ -97,7 +97,7 @@ describe('apiService', () => {
     expect(results[0].dietary).toContain('vegetarian');
     expect(results[0].dietary).toContain('gluten-free');
     expect(results[0].dietary).not.toContain('vegan');
-    expect(results[0].ingredients[0]).toEqual({ name: 'pasta', quantity: '100g pasta' });
+    expect(results[0].ingredients[0]).toBe('100g pasta');
     expect(results[0].instructions).toEqual(['Boil pasta.']);
   });
 
@@ -125,7 +125,7 @@ describe('apiService', () => {
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining('spoonacular.com/recipes/999/information'));
     expect(recipe.id).toBe('external_spoon_999');
     expect(recipe.name).toBe('Detailed Spoon Cake');
-    expect(recipe.ingredients[0]).toEqual({ name: 'sugar', quantity: '2 cups sugar' });
+    expect(recipe.ingredients[0]).toBe('2 cups sugar');
   });
 
   it('should fetch a single recipe by TheMealDB ID successfully', async () => {
@@ -151,6 +151,6 @@ describe('apiService', () => {
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining('themealdb.com/api/json/v1/1/lookup.php?i=52772'));
     expect(recipe.id).toBe('external_mealdb_52772');
     expect(recipe.name).toBe('Teriyaki Chicken');
-    expect(recipe.ingredients[0]).toEqual({ name: 'chicken', quantity: '1kg' });
+    expect(recipe.ingredients[0]).toBe('1kg chicken');
   });
 });

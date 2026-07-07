@@ -33,10 +33,9 @@ export async function searchExternalRecipes(query) {
       const results = data.results || [];
       
       return results.map(r => {
-        const ingredients = (r.extendedIngredients || []).map(ing => ({
-          name: ing.name ? ing.name.toLowerCase().trim() : '',
-          quantity: ing.original || `${ing.amount || ''} ${ing.unit || ''}`.trim()
-        })).filter(ing => ing.name.length > 0);
+        const ingredients = (r.extendedIngredients || []).map(ing => 
+          (ing.original || `${ing.amount || ''} ${ing.unit || ''} ${ing.name || ''}`).trim()
+        ).filter(ing => ing.length > 0);
         
         let instructions = [];
         if (r.analyzedInstructions && r.analyzedInstructions.length > 0) {
@@ -90,10 +89,8 @@ export async function searchExternalRecipes(query) {
         const ingredientName = meal[`strIngredient${i}`];
         const measure = meal[`strMeasure${i}`];
         if (ingredientName && ingredientName.trim().length > 0) {
-          ingredients.push({
-            name: ingredientName.toLowerCase().trim(),
-            quantity: measure && measure.trim().length > 0 ? measure.trim() : 'to taste'
-          });
+          const qty = measure && measure.trim().length > 0 ? measure.trim() : '';
+          ingredients.push(`${qty} ${ingredientName.toLowerCase().trim()}`.trim());
         }
       }
       
@@ -147,10 +144,9 @@ export async function fetchRecipeById(id) {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const r = await response.json();
 
-      const ingredients = (r.extendedIngredients || []).map(ing => ({
-        name: ing.name ? ing.name.toLowerCase().trim() : '',
-        quantity: ing.original || `${ing.amount || ''} ${ing.unit || ''}`.trim()
-      })).filter(ing => ing.name.length > 0);
+      const ingredients = (r.extendedIngredients || []).map(ing => 
+        (ing.original || `${ing.amount || ''} ${ing.unit || ''} ${ing.name || ''}`).trim()
+      ).filter(ing => ing.length > 0);
 
       let instructions = [];
       if (r.analyzedInstructions && r.analyzedInstructions.length > 0) {
@@ -203,10 +199,8 @@ export async function fetchRecipeById(id) {
         const ingredientName = meal[`strIngredient${i}`];
         const measure = meal[`strMeasure${i}`];
         if (ingredientName && ingredientName.trim().length > 0) {
-          ingredients.push({
-            name: ingredientName.toLowerCase().trim(),
-            quantity: measure && measure.trim().length > 0 ? measure.trim() : 'to taste'
-          });
+          const qty = measure && measure.trim().length > 0 ? measure.trim() : '';
+          ingredients.push(`${qty} ${ingredientName.toLowerCase().trim()}`.trim());
         }
       }
 
