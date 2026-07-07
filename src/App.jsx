@@ -23,7 +23,9 @@ import {
 import { 
   getInventory, 
   addInventoryItem, 
-  deleteInventoryItem 
+  deleteInventoryItem,
+  getExpirationThreshold,
+  saveExpirationThreshold
 } from './services/inventoryService.js';
 import { 
   getMealPlan, 
@@ -61,6 +63,7 @@ export default function App() {
   
   // Printing and Sharing States
   const [printData, setPrintData] = useState(null);
+  const [expirationThreshold, setExpirationThreshold] = useState(getExpirationThreshold());
   
   // Shopping list selection state (array of recipe IDs)
   const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
@@ -215,12 +218,19 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, [searchQuery, activeFilters, strictSearch, recipes, inventory]);
+  }, [searchQuery, activeFilters, strictSearch, recipes, inventory, expirationThreshold]);
 
   // Handle toggling favorites
   const handleToggleFav = (id) => {
     const updated = toggleFavorite(id);
     setFavorites(updated);
+  };
+
+  // Handle saving custom freshness warning threshold
+  const handleSaveExpirationThreshold = (days) => {
+    const savedVal = saveExpirationThreshold(days);
+    setExpirationThreshold(savedVal);
+    showToast(`📅 Freshness alert threshold set to ${savedVal} days!`);
   };
 
   // Handle dietary filter clicks
@@ -492,6 +502,8 @@ export default function App() {
         onAddItem={handleAddItemToInventory}
         onDeleteItem={handleDeleteItemFromInventory}
         onAutofillSearch={handleAutofillSearch}
+        expirationThreshold={expirationThreshold}
+        onSaveThreshold={handleSaveExpirationThreshold}
       />
 
       {/* Weekly Meal Planner Drawer */}

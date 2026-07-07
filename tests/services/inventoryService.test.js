@@ -4,7 +4,14 @@
 // Created: 2026-07-06
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getInventory, addInventoryItem, deleteInventoryItem, getExpirationStatus } from '../../src/services/inventoryService.js';
+import { 
+  getInventory, 
+  addInventoryItem, 
+  deleteInventoryItem, 
+  getExpirationStatus, 
+  getExpirationThreshold, 
+  saveExpirationThreshold 
+} from '../../src/services/inventoryService.js';
 
 describe('inventoryService - local storage CRUD', () => {
   const localStorageMock = (() => {
@@ -51,9 +58,25 @@ describe('inventoryService - local storage CRUD', () => {
     const updated = deleteInventoryItem(item.id);
     expect(updated).toHaveLength(0);
   });
+
+  it('should manage custom expiration threshold settings', () => {
+    expect(getExpirationThreshold()).toBe(3);
+    saveExpirationThreshold(5);
+    expect(getExpirationThreshold()).toBe(5);
+    
+    // Clamp checks
+    saveExpirationThreshold(20); // should clamp to 14
+    expect(getExpirationThreshold()).toBe(14);
+    saveExpirationThreshold(0); // should clamp to 1
+    expect(getExpirationThreshold()).toBe(1);
+  });
 });
 
 describe('inventoryService - getExpirationStatus', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   const getLocalDateStr = (offsetDays) => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);

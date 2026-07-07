@@ -66,12 +66,12 @@ The application is structured around a strict separation of concerns, decoupling
   - `RecipeForm`: An overlay modal containing form elements, client validations, and dynamic list inputs.
   - `ShoppingListModal`: Renders aggregated shopping checklist items, handles copy-to-clipboard and browser print overrides.
   - `CookModeModal`: Fullscreen step-by-step cooking guide with step countdown timers, Web Audio beep chimes, hands-free voice commands, an interactive conversions/substitutions advisor, and a text-to-speech recipe step narrator.
-  - `InventoryDrawer`: Sliding drawer displaying the fridge ingredients database, freshness badges, an addition form, and a button to autofill ingredient searches.
+  - `InventoryDrawer`: Sliding drawer displaying the fridge ingredients database, freshness badges, an addition form, a button to autofill ingredient searches, and an expiring freshness warning threshold configurator.
   - `PlannerDrawer`: Sliding drawer displaying the weekly meal grid (Monday-Sunday for breakfast, lunch, dinner), drag-and-drop drop targets, select dropdown fallbacks, and a bulk shopping list compiler.
 - **App Layout (`src/App.jsx` & `src/App.css`)**: Serves as the central coordinator for state synchronization, synchronization of favorites deletions, toast alerts, Cook Mode active selections, HSL styling, and printer layout formatting.
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (81 total unit tests).
+- 100% test coverage on the utility, model, and service layers (82 total unit tests).
 
 

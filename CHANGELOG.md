@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-07-06
+
+### Added
+- Created `getExpirationThreshold` and `saveExpirationThreshold` helper methods inside [src/services/inventoryService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/inventoryService.js) to manage configuration indices synced to `localStorage`.
+- Created unit tests verifying threshold clamp ranges (1-14 days) and isolation test runs inside [tests/services/inventoryService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/inventoryService.test.js) (bringing total tests to 82 passing).
+
+### Changed
+- Integrated custom warning threshold dropdown selector inside [src/components/InventoryDrawer.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/InventoryDrawer.jsx) for dynamic warnings badges rendering.
+- Wired threshold state triggers and re-ranking hooks inside [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) to re-evaluate recipes scores reactively when warning sensitivities change.
+- Appended layout visual styles for threshold select boxes to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.10.0] - 2026-07-06
 
 ### Added

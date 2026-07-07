@@ -73,6 +73,28 @@ export function deleteInventoryItem(id) {
   return filtered;
 }
 
+export function getExpirationThreshold() {
+  try {
+    if (typeof localStorage === 'undefined') return 3;
+    const raw = localStorage.getItem('recipe_finder_expiration_threshold');
+    if (!raw) return 3;
+    const val = parseInt(raw, 10);
+    return isNaN(val) ? 3 : val;
+  } catch {
+    return 3;
+  }
+}
+
+export function saveExpirationThreshold(days) {
+  const parsed = parseInt(days, 10);
+  const val = Math.max(1, Math.min(14, isNaN(parsed) ? 3 : parsed));
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('recipe_finder_expiration_threshold', val.toString());
+  }
+  logger.info('Saved custom expiration threshold', { threshold: val });
+  return val;
+}
+
 /**
  * Checks if an item is expired or expiring within a days threshold.
  * 
@@ -80,7 +102,7 @@ export function deleteInventoryItem(id) {
  * @param {number} thresholdDays - Number of days to flag as expiring soon.
  * @returns {Object} { isExpired: boolean, isExpiringSoon: boolean, daysLeft: number }
  */
-export function getExpirationStatus(dateStr, thresholdDays = 3) {
+export function getExpirationStatus(dateStr, thresholdDays = getExpirationThreshold()) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   

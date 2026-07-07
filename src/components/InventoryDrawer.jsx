@@ -23,7 +23,9 @@ export default function InventoryDrawer({
   inventory,
   onAddItem,
   onDeleteItem,
-  onAutofillSearch
+  onAutofillSearch,
+  expirationThreshold,
+  onSaveThreshold
 }) {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -131,6 +133,23 @@ export default function InventoryDrawer({
           </button>
         </form>
 
+        {/* Freshness Threshold Configurator */}
+        <div className="threshold-configurator-row" id="freshness-threshold-panel">
+          <label htmlFor="freshness-threshold-select">Freshness warning threshold:</label>
+          <div className="threshold-select-group">
+            <select
+              id="freshness-threshold-select"
+              value={expirationThreshold}
+              onChange={(e) => onSaveThreshold(Number(e.target.value))}
+              className="threshold-select-input"
+            >
+              {[1, 2, 3, 5, 7, 10, 14].map(days => (
+                <option key={days} value={days}>{days} {days === 1 ? 'day' : 'days'}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {/* Inventory List */}
         <div className="inventory-list-scroll">
           {inventory.length === 0 ? (
@@ -142,7 +161,7 @@ export default function InventoryDrawer({
           ) : (
             <ul className="inventory-items-list">
               {inventory.map(item => {
-                const status = getExpirationStatus(item.expirationDate);
+                const status = getExpirationStatus(item.expirationDate, expirationThreshold);
                 let badgeClass = 'safe';
                 let badgeText = `${status.daysLeft}d left`;
                 
