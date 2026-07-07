@@ -119,6 +119,15 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
     }
   };
 
+  const handleClose = useCallback(() => {
+    setIsListening(false);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    setCurrentStepIdx(0);
+    onClose();
+  }, [onClose]);
+
   const handleNextStep = useCallback(() => {
     if (currentStepIdx < steps.length - 1) {
       setCurrentStepIdx(prev => prev + 1);
@@ -132,15 +141,6 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
       setCurrentStepIdx(prev => prev - 1);
     }
   }, [currentStepIdx]);
-
-  const handleClose = useCallback(() => {
-    setIsListening(false);
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
-    setCurrentStepIdx(0);
-    onClose();
-  }, [onClose]);
 
   // Speech context references to keep listeners stable without restarts
   const speechContextRef = useRef({
