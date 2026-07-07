@@ -5,6 +5,11 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { parseStepTime } from '../utils/cookModeUtils.js';
+import { 
+  getVoiceConfig, 
+  saveVoiceConfig, 
+  matchVoiceCommand 
+} from '../services/voiceConfigService.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -23,6 +28,32 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
   const [timerAlert, setTimerAlert] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+
+  // Configuration States
+  const [voiceConfig, setVoiceConfig] = useState(getVoiceConfig());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Temporary Edit Form States
+  const [tempChime, setTempChime] = useState(voiceConfig.chime);
+  const [tempNext, setTempNext] = useState('');
+  const [tempBack, setTempBack] = useState('');
+  const [tempStart, setTempStart] = useState('');
+  const [tempStop, setTempStop] = useState('');
+  const [tempReset, setTempReset] = useState('');
+  const [tempExit, setTempExit] = useState('');
+
+  // Sync temporary inputs when settings open
+  useEffect(() => {
+    if (isSettingsOpen) {
+      setTempChime(voiceConfig.chime);
+      setTempNext(voiceConfig.mappings.next.join(', '));
+      setTempBack(voiceConfig.mappings.back.join(', '));
+      setTempStart(voiceConfig.mappings.start.join(', '));
+      setTempStop(voiceConfig.mappings.stop.join(', '));
+      setTempReset(voiceConfig.mappings.reset.join(', '));
+      setTempExit(voiceConfig.mappings.exit.join(', '));
+    }
+  }, [isSettingsOpen, voiceConfig]);
 
   const recognitionRef = useRef(null);
   const timerIntervalRef = useRef(null);
@@ -48,7 +79,7 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
     setTimerAlert(true);
     logger.info('Timer finished in Cook Mode', { recipeName: recipe?.name, stepIdx: currentStepIdx });
     playBeepChime();
-  }, [recipe?.name, currentStepIdx]);
+  }, [recipe?.name, currentStepIdx, voiceConfig.chime]);
 
   // Parse and setup timers when step changes
   useEffect(() => {
@@ -94,26 +125,55 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
     };
   }, [isTimerRunning, timeLeft, triggerTimerAlert]);
 
-  const playBeepChime = () => {
+  const playBeepChime = (overrideChime) => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) {
         return;
       }
       const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      osc.type = 'sine';
-      osc.frequency.value = 880; // High A chime
-      gain.gain.setValueAtTime(1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
-      
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 1.2);
+      const chimeType = overrideChime || voiceConfig.chime;
+
+      if (chimeType === 'beep-beep') {
+        const playSingleBeep = (startTime) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'square';
+          osc.frequency.value = 660;
+          gain.gain.setValueAtTime(0.3, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
+          osc.start(startTime);
+          osc.stop(startTime + 0.15);
+        };
+        playSingleBeep(ctx.currentTime);
+        playSingleBeep(ctx.currentTime + 0.25);
+      } else if (chimeType === 'sweep') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 1.0);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.0);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 1.0);
+      } else {
+        // 'chime' (sine wave fade)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 1.2);
+      }
     } catch (e) {
       logger.warn('Web Audio chime playback failed', { error: e.message });
     }
@@ -150,7 +210,8 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
     timerMax,
     setIsTimerRunning,
     setTimeLeft,
-    setTimerAlert
+    setTimerAlert,
+    voiceConfig
   });
 
   useEffect(() => {
@@ -161,9 +222,10 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
       timerMax,
       setIsTimerRunning,
       setTimeLeft,
-      setTimerAlert
+      setTimerAlert,
+      voiceConfig
     };
-  }, [handleNextStep, handlePrevStep, handleClose, timerMax]);
+  }, [handleNextStep, handlePrevStep, handleClose, timerMax, voiceConfig]);
 
   // Manage voice speech recognition loops
   useEffect(() => {
@@ -176,20 +238,21 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
       const transcript = e.results[0][0].transcript.toLowerCase().trim();
       logger.info('Speech recognized in Cook Mode', { transcript });
       const ctx = speechContextRef.current;
+      const mappings = ctx.voiceConfig.mappings;
 
-      if (transcript.includes('next') || transcript.includes('continue') || transcript.includes('forward')) {
+      if (matchVoiceCommand(transcript, 'next', mappings)) {
         ctx.handleNextStep();
-      } else if (transcript.includes('back') || transcript.includes('previous') || transcript.includes('go back')) {
+      } else if (matchVoiceCommand(transcript, 'back', mappings)) {
         ctx.handlePrevStep();
-      } else if (transcript.includes('start') || transcript.includes('resume')) {
+      } else if (matchVoiceCommand(transcript, 'start', mappings)) {
         ctx.setIsTimerRunning(true);
-      } else if (transcript.includes('pause') || transcript.includes('stop')) {
+      } else if (matchVoiceCommand(transcript, 'stop', mappings)) {
         ctx.setIsTimerRunning(false);
-      } else if (transcript.includes('reset')) {
+      } else if (matchVoiceCommand(transcript, 'reset', mappings)) {
         ctx.setTimeLeft(ctx.timerMax);
         ctx.setIsTimerRunning(false);
         ctx.setTimerAlert(false);
-      } else if (transcript.includes('close') || transcript.includes('exit')) {
+      } else if (matchVoiceCommand(transcript, 'exit', mappings)) {
         ctx.handleClose();
       }
     };
@@ -257,13 +320,21 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
             <button 
               onClick={() => setIsListening(!isListening)} 
               className={`voice-cmd-btn ${isListening ? 'listening' : ''}`}
-              title="Toggle Hands-Free Commands ('next', 'back', 'start', 'stop', 'reset')"
+              title="Toggle Hands-Free Commands"
               id="voice-commands-toggle"
             >
               <span className="mic-icon">🎙️</span>
               {isListening ? 'Listening...' : 'Hands-Free (Voice)'}
             </button>
           )}
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="cook-settings-btn"
+            id="toggle-cook-settings"
+            title="Configure voice commands and alert sounds"
+          >
+            ⚙️ Settings
+          </button>
           <button onClick={handleClose} className="exit-cook-btn" id="exit-cook-mode">✕ Exit</button>
         </div>
       </header>
@@ -339,6 +410,150 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
           {currentStepIdx === steps.length - 1 ? '🎉 Done' : 'Next Step ▶'}
         </button>
       </footer>
+
+      {/* Settings Overlay Form */}
+      {isSettingsOpen && (
+        <div className="cook-settings-modal-overlay" id="cook-settings-panel">
+          <div className="cook-settings-modal-card">
+            <div className="cook-settings-header">
+              <h3>⚙️ Voice & Audio Settings</h3>
+              <button onClick={() => setIsSettingsOpen(false)} className="close-settings-btn" aria-label="Close settings">✕</button>
+            </div>
+            
+            <div className="cook-settings-body">
+              <div className="cook-settings-row">
+                <label htmlFor="chime-select" className="chime-select-label">⏰ Timer Alert Chime</label>
+                <div className="chime-selector-group">
+                  <select 
+                    id="chime-select"
+                    value={tempChime} 
+                    onChange={(e) => setTempChime(e.target.value)}
+                    className="chime-dropdown-select"
+                  >
+                    <option value="chime">🎵 High Chime (Sine)</option>
+                    <option value="beep-beep">🔊 Double Beep (Square)</option>
+                    <option value="sweep">🎛️ Frequency Sweep (Triangle)</option>
+                  </select>
+                  <button 
+                    onClick={() => playBeepChime(tempChime)}
+                    className="test-chime-btn"
+                    title="Test alarm sound"
+                    type="button"
+                  >
+                    🔊 Test
+                  </button>
+                </div>
+              </div>
+
+              <div className="command-mappings-section">
+                <h4>🎙️ Customize Voice Command Triggers (comma separated)</h4>
+                
+                <div className="mapping-input-group">
+                  <label htmlFor="voice-cmd-next">Next Step</label>
+                  <input 
+                    type="text" 
+                    id="voice-cmd-next"
+                    value={tempNext} 
+                    onChange={(e) => setTempNext(e.target.value)} 
+                    placeholder="e.g. next, continue, forward"
+                    className="voice-mapping-input"
+                  />
+                </div>
+
+                <div className="mapping-input-group">
+                  <label htmlFor="voice-cmd-back">Previous Step</label>
+                  <input 
+                    type="text" 
+                    id="voice-cmd-back"
+                    value={tempBack} 
+                    onChange={(e) => setTempBack(e.target.value)} 
+                    placeholder="e.g. back, previous, go back"
+                    className="voice-mapping-input"
+                  />
+                </div>
+
+                <div className="mapping-input-group">
+                  <label htmlFor="voice-cmd-start">Start/Resume Timer</label>
+                  <input 
+                    type="text" 
+                    id="voice-cmd-start"
+                    value={tempStart} 
+                    onChange={(e) => setTempStart(e.target.value)} 
+                    placeholder="e.g. start, resume, go"
+                    className="voice-mapping-input"
+                  />
+                </div>
+
+                <div className="mapping-input-group">
+                  <label htmlFor="voice-cmd-stop">Pause/Stop Timer</label>
+                  <input 
+                    type="text" 
+                    id="voice-cmd-stop"
+                    value={tempStop} 
+                    onChange={(e) => setTempStop(e.target.value)} 
+                    placeholder="e.g. pause, stop, hold"
+                    className="voice-mapping-input"
+                  />
+                </div>
+
+                <div className="mapping-input-group">
+                  <label htmlFor="voice-cmd-reset">Reset Timer</label>
+                  <input 
+                    type="text" 
+                    id="voice-cmd-reset"
+                    value={tempReset} 
+                    onChange={(e) => setTempReset(e.target.value)} 
+                    placeholder="e.g. reset, restart"
+                    className="voice-mapping-input"
+                  />
+                </div>
+
+                <div className="mapping-input-group">
+                  <label htmlFor="voice-cmd-exit">Exit Cook Mode</label>
+                  <input 
+                    type="text" 
+                    id="voice-cmd-exit"
+                    value={tempExit} 
+                    onChange={(e) => setTempExit(e.target.value)} 
+                    placeholder="e.g. exit, close, finish"
+                    className="voice-mapping-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="cook-settings-footer">
+              <button onClick={() => setIsSettingsOpen(false)} className="settings-btn cancel">Cancel</button>
+              <button 
+                onClick={() => {
+                  try {
+                    const newConfig = {
+                      chime: tempChime,
+                      mappings: {
+                        next: tempNext.split(','),
+                        back: tempBack.split(','),
+                        start: tempStart.split(','),
+                        stop: tempStop.split(','),
+                        reset: tempReset.split(','),
+                        exit: tempExit.split(',')
+                      }
+                    };
+                    const saved = saveVoiceConfig(newConfig);
+                    setVoiceConfig(saved);
+                    setIsSettingsOpen(false);
+                  } catch (err) {
+                    alert(err.message);
+                  }
+                }} 
+                className="settings-btn save"
+                id="save-voice-settings-btn"
+              >
+                Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

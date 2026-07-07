@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-07-06
+
+### Added
+- Created [src/services/voiceConfigService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/voiceConfigService.js) managing customizable voice mapping structures and alarm chimes synced to localStorage.
+- Added settings overlay tab inside [src/components/CookModeModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/CookModeModal.jsx) allowing customizable triggers, alarm chimes, and instant play preview tests.
+- Implemented unit tests in [tests/services/voiceConfigService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/voiceConfigService.test.js) checking settings CRUD and transcript checking (now totaling 58 unit tests).
+
+### Changed
+- Configured [src/components/CookModeModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/CookModeModal.jsx) speech result processing to verify commands dynamically against active user configurations.
+- Refactored Web Audio oscillator configurations to support square double-beeps and sweep frequencies.
+- Appended overlay flex rules, drop menus, preview test buttons, and grid mapping styles to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.5.0] - 2026-07-06
 
 ### Added
