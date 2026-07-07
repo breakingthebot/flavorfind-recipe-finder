@@ -51,19 +51,21 @@ The application is structured around a strict separation of concerns, decoupling
 - **Services**:
   - `src/services/recipeService.js`: Handles combined recipe search and favorites indexing synced to `localStorage`.
   - `src/services/inventoryService.js`: Operates CRUD storage and expiration day math for local fridge inventory items.
+  - `src/services/plannerService.js`: Manages weekly meal plan slot storage synced to `localStorage`.
 - **Components (`src/components/`)**: Atomic, reusable React components:
-  - `RecipeCard`: Handles card detail layout, custom deletion buttons, step accordions, and expired/expiring ingredient warning banners.
+  - `RecipeCard`: Handles card detail layout, custom deletion buttons, step accordions, expired/expiring warnings, and drag-and-drop triggers.
   - `RecipeList`: Maps recipes to the layout and manages the empty search state.
   - `SearchFilters`: Coordinates search queries and checkboxes.
-  - `FavoritesList`: Displays favorited recipes in a slide-out drawer with selection checkboxes.
+  - `FavoritesList`: Displays favorited recipes in a slide-out drawer with selection checkboxes and drag capability.
   - `RecipeForm`: An overlay modal containing form elements, client validations, and dynamic list inputs.
   - `ShoppingListModal`: Renders aggregated shopping checklist items, handles copy-to-clipboard and browser print overrides.
   - `CookModeModal`: Fullscreen step-by-step cooking guide with step countdown timers, Web Audio beep chimes, and browser hands-free voice commands.
   - `InventoryDrawer`: Sliding drawer displaying the fridge ingredients database, freshness badges, an addition form, and a button to autofill ingredient searches.
+  - `PlannerDrawer`: Sliding drawer displaying the weekly meal grid (Monday-Sunday for breakfast, lunch, dinner), drag-and-drop drop targets, select dropdown fallbacks, and a bulk shopping list compiler.
 - **App Layout (`src/App.jsx` & `src/App.css`)**: Serves as the central coordinator for state synchronization, synchronization of favorites deletions, toast alerts, Cook Mode active selections, HSL styling, and printer layout formatting.
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (50 total unit tests).
+- 100% test coverage on the utility, model, and service layers (55 total unit tests).
 
 

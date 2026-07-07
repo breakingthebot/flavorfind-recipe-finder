@@ -11,6 +11,7 @@ import RecipeForm from './components/RecipeForm.jsx';
 import ShoppingListModal from './components/ShoppingListModal.jsx';
 import CookModeModal from './components/CookModeModal.jsx';
 import InventoryDrawer from './components/InventoryDrawer.jsx';
+import PlannerDrawer from './components/PlannerDrawer.jsx';
 import { 
   getRecipes, 
   searchRecipes, 
@@ -24,6 +25,12 @@ import {
   addInventoryItem, 
   deleteInventoryItem 
 } from './services/inventoryService.js';
+import { 
+  getMealPlan, 
+  planMeal, 
+  unplanMeal, 
+  clearMealPlan 
+} from './services/plannerService.js';
 import { scoreRecipeByInventory } from './utils/filterUtils.js';
 import { logger } from './utils/logger.js';
 import './App.css';
@@ -42,6 +49,8 @@ export default function App() {
   const [activeCookRecipe, setActiveCookRecipe] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [inventory, setInventory] = useState([]);
+  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+  const [mealPlan, setMealPlan] = useState({});
   
   // Shopping list selection state (array of recipe IDs)
   const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
@@ -62,6 +71,7 @@ export default function App() {
     setRecipes(allRecipes);
     setFavorites(getFavorites());
     setInventory(getInventory());
+    setMealPlan(getMealPlan());
   }, []);
 
   useEffect(() => {
@@ -178,6 +188,48 @@ export default function App() {
     showToast('Autofilled search query from fridge!');
   };
 
+  // Handle planning a meal in the weekly calendar
+  const handlePlanMeal = (day, mealType, recipeId) => {
+    try {
+      const updatedPlan = planMeal(day, mealType, recipeId);
+      setMealPlan(updatedPlan);
+      const recipeName = recipes.find(r => r.id === recipeId)?.name || 'Recipe';
+      showToast(`Planned "${recipeName}" for ${day} ${mealType}.`);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Handle clearing a planned meal slot
+  const handleUnplanMeal = (day, mealType) => {
+    try {
+      const updatedPlan = unplanMeal(day, mealType);
+      setMealPlan(updatedPlan);
+      showToast(`Cleared ${day} ${mealType} slot.`);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Handle resetting the entire weekly plan
+  const handleClearPlan = () => {
+    try {
+      const updatedPlan = clearMealPlan();
+      setMealPlan(updatedPlan);
+      showToast('Weekly meal plan reset.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Handle compiling shopping list from planned recipes
+  const handleGeneratePlannerList = (plannedIds) => {
+    setSelectedRecipesForList(plannedIds);
+    setIsPlannerOpen(false);
+    setIsShoppingListOpen(true);
+    showToast('Shopping list compiled from planned meals!');
+  };
+
   return (
     <div className="app-container">
       {/* Header Bar */}
@@ -200,6 +252,13 @@ export default function App() {
             id="toggle-inventory-drawer"
           >
             🥦 My Fridge ({inventory.length})
+          </button>
+          <button
+            onClick={() => setIsPlannerOpen(true)}
+            className="open-planner-btn"
+            id="toggle-planner-drawer"
+          >
+            📅 Planner ({Object.values(mealPlan).filter(Boolean).length})
           </button>
           <button 
             onClick={() => setIsSidebarOpen(true)} 
@@ -302,6 +361,19 @@ export default function App() {
         onAddItem={handleAddItemToInventory}
         onDeleteItem={handleDeleteItemFromInventory}
         onAutofillSearch={handleAutofillSearch}
+      />
+
+      {/* Weekly Meal Planner Drawer */}
+      <PlannerDrawer
+        isOpen={isPlannerOpen}
+        onClose={() => setIsPlannerOpen(false)}
+        recipes={recipes}
+        favorites={favorites}
+        mealPlan={mealPlan}
+        onPlanMeal={handlePlanMeal}
+        onUnplanMeal={handleUnplanMeal}
+        onClearPlan={handleClearPlan}
+        onGenerateShoppingList={handleGeneratePlannerList}
       />
 
       {/* Footer */}

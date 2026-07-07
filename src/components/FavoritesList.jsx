@@ -84,7 +84,16 @@ export default function FavoritesList({
             {favoriteRecipes.map(recipe => {
               const isSelected = selectedItems.includes(recipe.id);
               return (
-                <li key={recipe.id} className="favorite-item-card" id={`fav-item-${recipe.id}`}>
+                <li 
+                  key={recipe.id} 
+                  className="favorite-item-card" 
+                  id={`fav-item-${recipe.id}`}
+                  draggable="true"
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('text/plain', recipe.id);
+                    e.dataTransfer.effectAllowed = 'copy';
+                  }}
+                >
                   <label className="checkbox-container">
                     <input 
                       type="checkbox" 

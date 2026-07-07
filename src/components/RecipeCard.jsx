@@ -29,7 +29,15 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCoo
   const isCustom = recipe.id && String(recipe.id).startsWith('custom_');
 
   return (
-    <div className="recipe-card" id={`recipe-card-${recipe.id}`}>
+    <div 
+      className="recipe-card" 
+      id={`recipe-card-${recipe.id}`}
+      draggable="true"
+      onDragStart={(e) => {
+        e.dataTransfer.setData('text/plain', recipe.id);
+        e.dataTransfer.effectAllowed = 'copy';
+      }}
+    >
       <div className="recipe-image-container">
         <img src={recipe.imageUrl} alt={recipe.name} className="recipe-image" loading="lazy" />
         <div className="recipe-image-overlay"></div>

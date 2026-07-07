@@ -2106,5 +2106,191 @@
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
+/* Meal Planner Styles */
+.open-planner-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.open-planner-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.planner-scroll-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.planner-helper-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0 0 1.25rem 0;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border);
+}
+
+.planner-days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.planner-day-section {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.planner-day-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.planner-day-section h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: var(--text-h);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.planner-day-meals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.planner-meal-slot {
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--border-radius-md);
+  padding: 0.6rem 0.75rem;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.planner-meal-slot.empty:hover {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.planner-meal-slot.filled {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.meal-type-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  width: 75px;
+  flex-shrink: 0;
+}
+
+.planned-meal-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.planned-meal-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.planned-meal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.planned-meal-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.unplan-slot-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: var(--transition-smooth);
+}
+
+.unplan-slot-btn:hover {
+  color: #ef4444;
+  transform: scale(1.15);
+}
+
+.empty-slot-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.drop-target-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.planner-dropdown-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+
+.planner-dropdown-select:focus {
+  border-color: var(--primary);
+}
+
+.generate-plan-list-btn {
+  color: var(--accent) !important;
+}
+
+.generate-plan-list-btn:hover {
+  color: var(--accent-hover) !important;
+}
+
+
 
 

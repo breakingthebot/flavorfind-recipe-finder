@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-06
+
+### Added
+- Created [src/services/plannerService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/plannerService.js) managing weekly meal plan slots (Monday-Sunday for breakfast, lunch, and dinner) synced to localStorage.
+- Built [src/components/PlannerDrawer.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/PlannerDrawer.jsx) drawer allowing slot planning, select dropdown fallbacks, resets, and bulk shopping list generation.
+- Added unit tests in [tests/services/plannerService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/plannerService.test.js) checking planner slot updates and clear triggers (now totaling 55 unit tests).
+
+### Changed
+- Integrated planner states and CRUD handlers in [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) and mounted the weekly calendar drawer.
+- Configured [src/components/RecipeCard.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeCard.jsx) and [src/components/FavoritesList.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/FavoritesList.jsx) to make items draggable.
+- Appended weekly planner grid dimensions, slot shadows, select fallbacks, and drag transitions to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.4.0] - 2026-07-06
 
 ### Added
