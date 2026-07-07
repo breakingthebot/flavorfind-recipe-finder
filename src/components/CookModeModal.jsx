@@ -16,6 +16,12 @@ import {
   CONVERSION_GROUPS, 
   getFullSubstitutionsDb 
 } from '../services/conversionService.js';
+import { 
+  getTtsConfig, 
+  saveTtsConfig, 
+  speakText, 
+  stopSpeaking 
+} from '../services/speechSynthesisService.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -38,6 +44,48 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
   // Configuration States
   const [voiceConfig, setVoiceConfig] = useState(getVoiceConfig());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Text-To-Speech (TTS) States
+  const [ttsConfig, setTtsConfig] = useState(getTtsConfig());
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [tempTtsEnabled, setTempTtsEnabled] = useState(ttsConfig.enabled);
+  const [tempTtsVoice, setTempTtsVoice] = useState(ttsConfig.voiceName);
+  const [tempTtsRate, setTempTtsRate] = useState(ttsConfig.rate);
+  const [tempTtsPitch, setTempTtsPitch] = useState(ttsConfig.pitch);
+
+  // Load available speech voices
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const updateVoices = () => {
+      setAvailableVoices(synth.getVoices() || []);
+    };
+    updateVoices();
+    synth.onvoiceschanged = updateVoices;
+    return () => {
+      synth.onvoiceschanged = null;
+    };
+  }, []);
+
+  // Sync temporary settings when settings modal is opened
+  useEffect(() => {
+    if (isSettingsOpen) {
+      setTempTtsEnabled(ttsConfig.enabled);
+      setTempTtsVoice(ttsConfig.voiceName);
+      setTempTtsRate(ttsConfig.rate);
+      setTempTtsPitch(ttsConfig.pitch);
+    }
+  }, [isSettingsOpen, ttsConfig]);
+
+  // Read steps aloud automatically when currentStepIdx or enabling state changes
+  useEffect(() => {
+    if (isOpen && steps[currentStepIdx]) {
+      speakText(steps[currentStepIdx], ttsConfig);
+    }
+    return () => {
+      stopSpeaking();
+    };
+  }, [currentStepIdx, isOpen, ttsConfig]);
 
   // Kitchen Tools (Conversions and Substitutions) States
   const [isToolsOpen, setIsToolsOpen] = useState(false);
@@ -523,6 +571,85 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
                 </div>
               </div>
 
+              {/* Text-To-Speech settings */}
+              <div className="command-mappings-section">
+                <h4>🔊 Step Walkthrough Narrator (Text-to-Speech)</h4>
+                
+                <div className="cook-settings-row" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <input 
+                    type="checkbox" 
+                    id="tts-enabled-check"
+                    checked={tempTtsEnabled}
+                    onChange={(e) => setTempTtsEnabled(e.target.checked)}
+                    style={{ width: 'auto', margin: 0 }}
+                  />
+                  <label htmlFor="tts-enabled-check" style={{ cursor: 'pointer', fontWeight: 600 }}>Enable step narration on slide transitions</label>
+                </div>
+
+                {tempTtsEnabled && (
+                  <>
+                    <div className="mapping-input-group">
+                      <label htmlFor="tts-voice-select">Speech Voice</label>
+                      <select 
+                        id="tts-voice-select"
+                        value={tempTtsVoice}
+                        onChange={(e) => setTempTtsVoice(e.target.value)}
+                        className="chime-dropdown-select"
+                      >
+                        <option value="">-- System Default Voice --</option>
+                        {availableVoices.map(v => (
+                          <option key={v.name} value={v.name}>{v.name} ({v.lang})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mapping-input-group" style={{ marginTop: '0.75rem' }}>
+                      <label htmlFor="tts-rate-range">Speech Rate (Speed): {tempTtsRate}x</label>
+                      <input 
+                        type="range"
+                        id="tts-rate-range"
+                        min="0.5"
+                        max="2.0"
+                        step="0.1"
+                        value={tempTtsRate}
+                        onChange={(e) => setTempTtsRate(Number(e.target.value))}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+
+                    <div className="mapping-input-group" style={{ marginTop: '0.75rem' }}>
+                      <label htmlFor="tts-pitch-range">Speech Pitch: {tempTtsPitch}</label>
+                      <input 
+                        type="range"
+                        id="tts-pitch-range"
+                        min="0.5"
+                        max="2.0"
+                        step="0.1"
+                        value={tempTtsPitch}
+                        onChange={(e) => setTempTtsPitch(Number(e.target.value))}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+
+                    <div className="chime-selector-group" style={{ marginTop: '1rem' }}>
+                      <button 
+                        onClick={() => speakText("Testing flavor find step narrator settings.", {
+                          enabled: true,
+                          voiceName: tempTtsVoice,
+                          rate: tempTtsRate,
+                          pitch: tempTtsPitch
+                        })}
+                        className="test-chime-btn"
+                        style={{ width: '100%' }}
+                        type="button"
+                      >
+                        🔊 Test Voice Settings
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
               <div className="command-mappings-section">
                 <h4>🎙️ Customize Voice Command Triggers (comma separated)</h4>
                 
@@ -618,6 +745,16 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
                     };
                     const saved = saveVoiceConfig(newConfig);
                     setVoiceConfig(saved);
+
+                    // Save TTS config
+                    const savedTts = saveTtsConfig({
+                      enabled: tempTtsEnabled,
+                      voiceName: tempTtsVoice,
+                      rate: tempTtsRate,
+                      pitch: tempTtsPitch
+                    });
+                    setTtsConfig(savedTts);
+
                     setIsSettingsOpen(false);
                   } catch (err) {
                     alert(err.message);

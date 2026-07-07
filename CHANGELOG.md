@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-07-06
+
+### Added
+- Created [src/services/speechSynthesisService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/speechSynthesisService.js) managing text-to-speech configuration (rate, pitch, custom voices) and playback triggers using `window.speechSynthesis`.
+- Created [tests/services/speechSynthesisService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/speechSynthesisService.test.js) validating defaults, settings sanitizations, test narrations, and stop parameters (bringing total tests to 81 passing).
+
+### Changed
+- Integrated step-by-step narration inside [src/components/CookModeModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/CookModeModal.jsx) to automatically read instructions aloud when navigating between cooking directions.
+- Mounted voice selectors, speed rate sliders, pitch controllers, and voice testing buttons inside the Settings drawer overlay.
+
 ## [1.9.0] - 2026-07-06
 
 ### Added
