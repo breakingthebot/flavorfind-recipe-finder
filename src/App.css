@@ -2506,6 +2506,20 @@
   transform: translateY(-1px);
 }
 
+/* Spinner indicators for external API requests */
+.search-external-spinner {
+  font-size: 0.85rem;
+  color: var(--primary);
+  margin-left: 1rem;
+  font-weight: 500;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
 
 
 

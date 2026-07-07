@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-07-06
+
+### Added
+- Created [src/services/apiService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/apiService.js) managing external searches (connecting to Spoonacular complexSearch or falling back to keyless TheMealDB API queries).
+- Configured [tests/services/apiService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/apiService.test.js) checking environment stubs, fetch calls, and fallback mapping outputs (now totaling 61 unit tests).
+- Updated [.env.example](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/.env.example) to define external API environment keys.
+
+### Changed
+- Configured [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) search effect to load external recipes asynchronously in the background, combining and de-duplicating results with local recipes.
+- Rendered search progress indicators next to Featured headers in [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx).
+- Appended spinner animations and loader colors to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.6.0] - 2026-07-06
 
 ### Added

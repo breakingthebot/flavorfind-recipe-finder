@@ -32,6 +32,7 @@ import {
   clearMealPlan 
 } from './services/plannerService.js';
 import { scoreRecipeByInventory } from './utils/filterUtils.js';
+import { searchExternalRecipes } from './services/apiService.js';
 import { logger } from './utils/logger.js';
 import './App.css';
 
@@ -51,6 +52,7 @@ export default function App() {
   const [inventory, setInventory] = useState([]);
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
   const [mealPlan, setMealPlan] = useState({});
+  const [isSearchingExternal, setIsSearchingExternal] = useState(false);
   
   // Shopping list selection state (array of recipe IDs)
   const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
@@ -85,27 +87,73 @@ export default function App() {
 
   // Update filtered recipes when search parameters or inventory change
   useEffect(() => {
+    let active = true;
+
     const ingredients = searchQuery
       .split(',')
       .map(i => i.trim())
       .filter(i => i.length > 0);
 
-    const filtered = searchRecipes(ingredients, activeFilters, strictSearch);
+    // 1. Initial Local Search
+    const localFiltered = searchRecipes(ingredients, activeFilters, strictSearch);
+    
+    const rankAndSetRecipes = (recipeList) => {
+      const scored = recipeList.map(recipe => {
+        const { score, matchingExpiringItems } = scoreRecipeByInventory(recipe, inventory);
+        return {
+          ...recipe,
+          fridgeScore: score,
+          matchingExpiringItems
+        };
+      });
+      const sorted = [...scored].sort((a, b) => b.fridgeScore - a.fridgeScore);
+      if (active) {
+        setFilteredRecipes(sorted);
+      }
+    };
 
-    // Score and re-rank recipes based on expiring items in the fridge inventory
-    const scored = filtered.map(recipe => {
-      const { score, matchingExpiringItems } = scoreRecipeByInventory(recipe, inventory);
-      return {
-        ...recipe,
-        fridgeScore: score,
-        matchingExpiringItems
-      };
-    });
+    // Set local results immediately
+    rankAndSetRecipes(localFiltered);
 
-    // Sort: highest score first. If scores are equal, preserve match order.
-    const sorted = [...scored].sort((a, b) => b.fridgeScore - a.fridgeScore);
+    // 2. Fetch External Recipes Async (only if a search query is present)
+    const rawQuery = searchQuery.trim();
+    if (rawQuery.length > 0) {
+      setIsSearchingExternal(true);
+      searchExternalRecipes(rawQuery)
+        .then(externalRecipes => {
+          if (!active) return;
+          
+          // Apply dietary filters to external recipes
+          const filteredExternal = externalRecipes.filter(recipe => {
+            if (strictSearch) {
+              return activeFilters.every(filter => recipe.dietary.includes(filter));
+            } else if (activeFilters.length > 0) {
+              return activeFilters.some(filter => recipe.dietary.includes(filter));
+            }
+            return true;
+          });
 
-    setFilteredRecipes(sorted);
+          // Combine with local recipes, ensuring no duplicate IDs
+          const localIds = new Set(localFiltered.map(r => r.id));
+          const deduplicatedExternal = filteredExternal.filter(r => !localIds.has(r.id));
+          
+          rankAndSetRecipes([...localFiltered, ...deduplicatedExternal]);
+        })
+        .catch(err => {
+          logger.error('Async external search failed', { error: err.message });
+        })
+        .finally(() => {
+          if (active) {
+            setIsSearchingExternal(false);
+          }
+        });
+    } else {
+      setIsSearchingExternal(false);
+    }
+
+    return () => {
+      active = false;
+    };
   }, [searchQuery, activeFilters, strictSearch, recipes, inventory]);
 
   // Handle toggling favorites
@@ -304,6 +352,11 @@ export default function App() {
               {searchQuery || activeFilters.length > 0 
                 ? `Results (${filteredRecipes.length})` 
                 : 'Featured Recipes'}
+              {isSearchingExternal && (
+                <span className="search-external-spinner" id="external-search-indicator">
+                  ⏳ Searching external APIs...
+                </span>
+              )}
             </h2>
           </div>
           <RecipeList 

@@ -53,6 +53,7 @@ The application is structured around a strict separation of concerns, decoupling
   - `src/services/inventoryService.js`: Operates CRUD storage and expiration day math for local fridge inventory items.
   - `src/services/plannerService.js`: Manages weekly meal plan slot storage synced to `localStorage`.
   - `src/services/voiceConfigService.js`: Manages customizable voice commands mappings and Web Audio alarm chime selections synced to `localStorage`.
+  - `src/services/apiService.js`: Operates external recipe queries (via Spoonacular or keyless TheMealDB).
 - **Components (`src/components/`)**: Atomic, reusable React components:
   - `RecipeCard`: Handles card detail layout, custom deletion buttons, step accordions, expired/expiring warnings, and drag-and-drop triggers.
   - `RecipeList`: Maps recipes to the layout and manages the empty search state.
@@ -67,6 +68,6 @@ The application is structured around a strict separation of concerns, decoupling
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (58 total unit tests).
+- 100% test coverage on the utility, model, and service layers (61 total unit tests).
 
 
