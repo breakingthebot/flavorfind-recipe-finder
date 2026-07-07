@@ -64,7 +64,7 @@ The application is structured around a strict separation of concerns, decoupling
   - `SearchFilters`: Coordinates search queries and checkboxes.
   - `FavoritesList`: Displays favorited recipes in a slide-out drawer with selection checkboxes and drag capability.
   - `RecipeForm`: An overlay modal containing form elements, client validations, and dynamic list inputs.
-  - `ShoppingListModal`: Renders aggregated shopping checklist items, handles copy-to-clipboard and browser print overrides.
+  - `ShoppingListModal`: Renders aggregated shopping checklist items, manages custom shopping list categories and custom keyword sorting rules, and handles copy-to-clipboard and browser print overrides.
   - `CookModeModal`: Fullscreen step-by-step cooking guide with step countdown timers, Web Audio beep chimes, hands-free voice commands, an interactive conversions/substitutions advisor, and a text-to-speech recipe step narrator.
   - `InventoryDrawer`: Sliding drawer displaying the fridge ingredients database, freshness badges, an addition form, a button to autofill ingredient searches, and an expiring freshness warning threshold configurator.
   - `PlannerDrawer`: Sliding drawer displaying the weekly meal grid (Monday-Sunday for breakfast, lunch, dinner), drag-and-drop drop targets, select dropdown fallbacks, and a bulk shopping list compiler.
@@ -72,6 +72,6 @@ The application is structured around a strict separation of concerns, decoupling
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (82 total unit tests).
+- 100% test coverage on the utility, model, and service layers (85 total unit tests).
 
 

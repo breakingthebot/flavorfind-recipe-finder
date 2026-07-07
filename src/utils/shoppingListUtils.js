@@ -15,6 +15,51 @@ const CATEGORIES = {
   SPICES_BAKING: ['salt', 'black pepper', 'pepper', 'chili flakes', 'nutritional yeast', 'yeast', 'oregano', 'cumin', 'paprika', 'cinnamon']
 };
 
+export function getCustomCategories() {
+  try {
+    if (typeof localStorage === 'undefined') return [];
+    const raw = localStorage.getItem('recipe_finder_custom_categories');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomCategories(categories) {
+  if (!Array.isArray(categories)) return;
+  const cleaned = categories
+    .map(c => String(c).trim().toUpperCase())
+    .filter(c => c.length > 0);
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('recipe_finder_custom_categories', JSON.stringify(cleaned));
+  }
+  logger.info('Saved custom shopping list categories', { count: cleaned.length });
+}
+
+export function getCustomCategoryMappings() {
+  try {
+    if (typeof localStorage === 'undefined') return {};
+    const raw = localStorage.getItem('recipe_finder_custom_category_mappings');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveCustomCategoryMappings(mappings) {
+  if (typeof mappings !== 'object' || mappings === null) return;
+  const cleaned = {};
+  for (const [ingredient, category] of Object.entries(mappings)) {
+    if (ingredient.trim() && category.trim()) {
+      cleaned[ingredient.trim().toLowerCase()] = category.trim().toUpperCase();
+    }
+  }
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('recipe_finder_custom_category_mappings', JSON.stringify(cleaned));
+  }
+  logger.info('Saved custom category mappings', { count: Object.keys(cleaned).length });
+}
+
 /**
  * Assigns an ingredient name to a shopping category.
  * 
@@ -24,6 +69,15 @@ const CATEGORIES = {
 export function getCategory(name) {
   const normalized = name.toLowerCase().trim();
   
+  // 1. Check custom mappings first
+  const customMappings = getCustomCategoryMappings();
+  for (const [ingSub, category] of Object.entries(customMappings)) {
+    if (normalized.includes(ingSub)) {
+      return category.replace('_', ' ');
+    }
+  }
+  
+  // 2. Check standard categories
   for (const [category, items] of Object.entries(CATEGORIES)) {
     if (items.some(item => normalized.includes(item))) {
       return category.replace('_', ' ');

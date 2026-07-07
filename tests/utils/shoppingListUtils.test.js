@@ -3,8 +3,16 @@
 // Connects to: src/utils/shoppingListUtils.js
 // Created: 2026-07-06
 
-import { describe, it, expect } from 'vitest';
-import { getCategory, parseIngredient, consolidateIngredients } from '../../src/utils/shoppingListUtils.js';
+import { 
+  getCategory, 
+  parseIngredient, 
+  consolidateIngredients,
+  getCustomCategories,
+  saveCustomCategories,
+  getCustomCategoryMappings,
+  saveCustomCategoryMappings
+} from '../../src/utils/shoppingListUtils.js';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('shoppingListUtils - getCategory', () => {
   it('should map produce correctly', () => {
@@ -120,5 +128,41 @@ describe('shoppingListUtils - consolidateIngredients', () => {
       recipes: ['Recipe A', 'Recipe B'],
       alternativeQuantities: [{ quantity: 1, unit: 'tbsp' }]
     });
+  });
+});
+
+describe('shoppingListUtils - custom categories and mappings', () => {
+  const localStorageMock = (() => {
+    let store = {};
+    return {
+      getItem: (key) => store[key] || null,
+      setItem: (key, value) => { store[key] = value.toString(); },
+      clear: () => { store = {}; }
+    };
+  })();
+
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', localStorageMock);
+    localStorage.clear();
+  });
+
+  it('should manage custom categories lists', () => {
+    expect(getCustomCategories()).toEqual([]);
+    saveCustomCategories(['Beverages', 'Pets']);
+    expect(getCustomCategories()).toEqual(['BEVERAGES', 'PETS']);
+  });
+
+  it('should manage custom mappings rules', () => {
+    expect(getCustomCategoryMappings()).toEqual({});
+    saveCustomCategoryMappings({ 'soda': 'BEVERAGES', 'apple': 'FRUITS' });
+    expect(getCustomCategoryMappings()).toEqual({ 'soda': 'BEVERAGES', 'apple': 'FRUITS' });
+  });
+
+  it('should respect custom mapping rules inside getCategory', () => {
+    saveCustomCategoryMappings({ 'soda': 'BEVERAGES' });
+    // Verify standard produce is mapped to standard produce
+    expect(getCategory('avocado')).toBe('PRODUCE');
+    // Verify mapped keyword is classified to Beverages
+    expect(getCategory('diet soda')).toBe('BEVERAGES');
   });
 });

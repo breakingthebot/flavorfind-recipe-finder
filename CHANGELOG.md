@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-07-06
+
+### Added
+- Created `getCustomCategories`, `saveCustomCategories`, `getCustomCategoryMappings`, and `saveCustomCategoryMappings` helpers inside [src/utils/shoppingListUtils.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/shoppingListUtils.js) to load and save user-defined categories and keyword matching rules.
+- Created unit tests verifying dynamic classifications, overrides, and storage states inside [tests/utils/shoppingListUtils.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/utils/shoppingListUtils.test.js) (bringing total tests to 85 passing).
+
+### Changed
+- Updated `getCategory` in [src/utils/shoppingListUtils.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/shoppingListUtils.js) to query custom keyword mappings first, prioritizing user rules over preset standard categories.
+- Integrated a Category Sorters toggle button and a Sorter Configuration Panel inside [src/components/ShoppingListModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/ShoppingListModal.jsx) to add/remove custom categories and keyword classifications.
+- Appended visual styling rules for category sorter chips, grids, and inputs to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.11.0] - 2026-07-06
 
 ### Added
