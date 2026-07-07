@@ -28,10 +28,3 @@ dist-ssr
 # Agent rules and logs
 AGENTS.md
 BUILD_NOTES.md
-
-# Vercel configuration
-.vercel
-
-
-
-.vercel

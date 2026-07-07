@@ -37,7 +37,8 @@ npm run build
 ```
 
 ## Deployed
-No deployment configured yet.
+The application is deployed live on Vercel at: [flavorfind-recipe-finder.vercel.app](https://flavorfind-recipe-finder.vercel.app)
+
 
 ## Architecture Notes
 The application is structured around a strict separation of concerns, decoupling UI components, data structures, search algorithms, and states:
