@@ -3,7 +3,7 @@
 // Connects to: src/components/RecipeCard.jsx, src/utils/cookModeUtils.js, src/utils/logger.js
 // Created: 2026-07-06
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { parseStepTime } from '../utils/cookModeUtils.js';
 import { logger } from '../utils/logger.js';
 
