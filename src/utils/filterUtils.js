@@ -3,6 +3,8 @@
 // Connects to: src/services/recipeService.js
 // Created: 2026-07-06
 
+import { getExpirationStatus } from '../services/inventoryService.js';
+
 /**
  * Checks if search ingredients match recipe ingredients.
  * Supports partial matching (e.g. "tomato" matches "cherry tomato").
@@ -62,4 +64,43 @@ export function matchDietaryFilters(recipeFlags, activeFilters) {
     .filter(f => f.length > 0);
 
   return normalizedFilters.every(filter => normalizedFlags.includes(filter));
+}
+
+/**
+ * Scores a recipe based on matching items in the user's fridge inventory.
+ * Items that are expired or expiring soon yield higher matching scores to promote food waste prevention.
+ * 
+ * @param {Object} recipe - The recipe model.
+ * @param {Object[]} inventory - The array of current inventory items in the fridge.
+ * @returns {Object} { score: number, matchingExpiringItems: Object[] }
+ */
+export function scoreRecipeByInventory(recipe, inventory) {
+  if (!recipe || !Array.isArray(recipe.ingredients) || !Array.isArray(inventory) || inventory.length === 0) {
+    return { score: 0, matchingExpiringItems: [] };
+  }
+
+  let score = 0;
+  const matchingExpiringItems = [];
+  const normalizedRecipe = recipe.ingredients.map(i => i.toLowerCase().trim());
+
+  inventory.forEach(item => {
+    const itemName = item.name.toLowerCase().trim();
+    const isMatch = normalizedRecipe.some(ring => ring.includes(itemName));
+
+    if (isMatch) {
+      const expStatus = getExpirationStatus(item.expirationDate);
+      
+      if (expStatus.isExpired) {
+        score += 100;
+        matchingExpiringItems.push({ item, status: expStatus });
+      } else if (expStatus.isExpiringSoon) {
+        score += (50 - (expStatus.daysLeft * 10));
+        matchingExpiringItems.push({ item, status: expStatus });
+      } else {
+        score += 10; // safe match
+      }
+    }
+  });
+
+  return { score, matchingExpiringItems };
 }

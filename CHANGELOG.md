@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-06
+
+### Added
+- Created [src/services/inventoryService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/inventoryService.js) managing CRUD storage and expiration calculations for local fridge inventory items.
+- Built [src/components/InventoryDrawer.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/InventoryDrawer.jsx) drawer allowing ingredient management, freshness alerts, and autofilling main search inputs.
+- Implemented `scoreRecipeByInventory` in [src/utils/filterUtils.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/filterUtils.js) to re-rank search results by expiring ingredients used.
+- Created unit tests in [tests/services/inventoryService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/inventoryService.test.js) and added test coverage in [tests/utils/filterUtils.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/utils/filterUtils.test.js) (now totaling 50 unit tests).
+
+### Changed
+- Integrated state trackers and re-ranking filters in [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) and mounted the drawer.
+- Updated [src/components/RecipeCard.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeCard.jsx) to display warning banners for ingredients expiring soon.
+- Appended drawer layouts, form variables, left-border tags, and card warnings to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.3.0] - 2026-07-06
 
 ### Added

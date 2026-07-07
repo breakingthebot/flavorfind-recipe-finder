@@ -10,6 +10,7 @@ import FavoritesList from './components/FavoritesList.jsx';
 import RecipeForm from './components/RecipeForm.jsx';
 import ShoppingListModal from './components/ShoppingListModal.jsx';
 import CookModeModal from './components/CookModeModal.jsx';
+import InventoryDrawer from './components/InventoryDrawer.jsx';
 import { 
   getRecipes, 
   searchRecipes, 
@@ -18,6 +19,12 @@ import {
   addCustomRecipe, 
   deleteCustomRecipe 
 } from './services/recipeService.js';
+import { 
+  getInventory, 
+  addInventoryItem, 
+  deleteInventoryItem 
+} from './services/inventoryService.js';
+import { scoreRecipeByInventory } from './utils/filterUtils.js';
 import { logger } from './utils/logger.js';
 import './App.css';
 
@@ -33,6 +40,8 @@ export default function App() {
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const [isCookModeOpen, setIsCookModeOpen] = useState(false);
   const [activeCookRecipe, setActiveCookRecipe] = useState(null);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [inventory, setInventory] = useState([]);
   
   // Shopping list selection state (array of recipe IDs)
   const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
@@ -52,6 +61,7 @@ export default function App() {
     const allRecipes = getRecipes();
     setRecipes(allRecipes);
     setFavorites(getFavorites());
+    setInventory(getInventory());
   }, []);
 
   useEffect(() => {
@@ -63,7 +73,7 @@ export default function App() {
     setSelectedRecipesForList(prev => prev.filter(id => favorites.includes(id)));
   }, [favorites]);
 
-  // Update filtered recipes when search parameters change
+  // Update filtered recipes when search parameters or inventory change
   useEffect(() => {
     const ingredients = searchQuery
       .split(',')
@@ -71,8 +81,22 @@ export default function App() {
       .filter(i => i.length > 0);
 
     const filtered = searchRecipes(ingredients, activeFilters, strictSearch);
-    setFilteredRecipes(filtered);
-  }, [searchQuery, activeFilters, strictSearch, recipes]);
+
+    // Score and re-rank recipes based on expiring items in the fridge inventory
+    const scored = filtered.map(recipe => {
+      const { score, matchingExpiringItems } = scoreRecipeByInventory(recipe, inventory);
+      return {
+        ...recipe,
+        fridgeScore: score,
+        matchingExpiringItems
+      };
+    });
+
+    // Sort: highest score first. If scores are equal, preserve match order.
+    const sorted = [...scored].sort((a, b) => b.fridgeScore - a.fridgeScore);
+
+    setFilteredRecipes(sorted);
+  }, [searchQuery, activeFilters, strictSearch, recipes, inventory]);
 
   // Handle toggling favorites
   const handleToggleFav = (id) => {
@@ -125,6 +149,35 @@ export default function App() {
     setIsCookModeOpen(true);
   };
 
+  // Handle adding an item to the fridge inventory
+  const handleAddItemToInventory = (item) => {
+    try {
+      const updated = addInventoryItem(item);
+      setInventory(updated);
+      showToast(`${item.name} added to fridge.`);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Handle deleting an item from the fridge inventory
+  const handleDeleteItemFromInventory = (id) => {
+    try {
+      const updated = deleteInventoryItem(id);
+      setInventory(updated);
+      showToast('Item removed from fridge.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Handle autofilling search query from fridge items
+  const handleAutofillSearch = (ingredientNames) => {
+    setSearchQuery(ingredientNames.join(', '));
+    setIsInventoryOpen(false);
+    showToast('Autofilled search query from fridge!');
+  };
+
   return (
     <div className="app-container">
       {/* Header Bar */}
@@ -140,6 +193,13 @@ export default function App() {
             id="toggle-create-recipe"
           >
             ➕ Create Recipe
+          </button>
+          <button
+            onClick={() => setIsInventoryOpen(true)}
+            className="open-inventory-btn"
+            id="toggle-inventory-drawer"
+          >
+            🥦 My Fridge ({inventory.length})
           </button>
           <button 
             onClick={() => setIsSidebarOpen(true)} 
@@ -232,6 +292,16 @@ export default function App() {
         isOpen={isCookModeOpen}
         onClose={() => setIsCookModeOpen(false)}
         recipe={activeCookRecipe}
+      />
+
+      {/* Collapsible Fridge Inventory Drawer */}
+      <InventoryDrawer
+        isOpen={isInventoryOpen}
+        onClose={() => setIsInventoryOpen(false)}
+        inventory={inventory}
+        onAddItem={handleAddItemToInventory}
+        onDeleteItem={handleDeleteItemFromInventory}
+        onAutofillSearch={handleAutofillSearch}
       />
 
       {/* Footer */}

@@ -1858,4 +1858,253 @@
   }
 }
 
+/* Fridge Inventory Styles */
+.open-inventory-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.open-inventory-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1.5rem;
+}
+
+.inventory-add-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-premium);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inventory-add-form h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-h);
+}
+
+.form-group-compact {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row-compact {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0.5rem;
+}
+
+.inventory-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.inventory-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.add-inventory-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.add-inventory-btn:hover {
+  filter: brightness(1.05);
+}
+
+.inventory-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.inventory-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inventory-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-smooth);
+}
+
+.inventory-item-card.safe {
+  border-left: 4px solid #10b981;
+}
+
+.inventory-item-card.warning {
+  border-left: 4px solid #f97316;
+}
+
+.inventory-item-card.expired {
+  border-left: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.03);
+}
+
+.inventory-item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.inventory-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inventory-item-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-h);
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inventory-item-qty {
+  font-size: 0.75rem;
+  background: var(--primary-glow);
+  color: var(--primary);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.inventory-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.inventory-status-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.inventory-status-badge.safe {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.inventory-status-badge.warning {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+}
+
+.inventory-status-badge.expired {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.inventory-expiry-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.delete-inventory-item-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.delete-inventory-item-btn:hover {
+  color: #ef4444;
+  transform: scale(1.15);
+}
+
+.autofill-btn {
+  width: 100%;
+  text-align: center !important;
+  font-size: 0.85rem !important;
+}
+
+/* Card Expiring Warnings Styling */
+.recipe-expiring-warning-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.recipe-expiring-warning-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--border-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+}
+
+.recipe-expiring-warning-badge.warning {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.recipe-expiring-warning-badge.expired {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+
 

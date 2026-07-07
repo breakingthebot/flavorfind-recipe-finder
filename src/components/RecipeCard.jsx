@@ -82,6 +82,22 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCoo
           ))}
         </div>
 
+        {recipe.matchingExpiringItems && recipe.matchingExpiringItems.length > 0 && (
+          <div className="recipe-expiring-warning-container" id={`expiring-container-${recipe.id}`}>
+            {recipe.matchingExpiringItems.map(({ item, status }) => (
+              <div 
+                key={item.id} 
+                className={`recipe-expiring-warning-badge ${status.isExpired ? 'expired' : 'warning'}`}
+              >
+                {status.isExpired 
+                  ? `🚨 Uses expired: ${item.name}` 
+                  : `⚠️ Uses expiring: ${item.name} (${status.daysLeft}d left)`
+                }
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="recipe-ingredients-section">
           <h4>Ingredients:</h4>
           <ul className="recipe-ingredients-list">
