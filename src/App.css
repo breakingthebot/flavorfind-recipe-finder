@@ -2520,6 +2520,84 @@
   50% { opacity: 1; }
 }
 
+/* Card share and print button styles */
+.share-recipe-action-btn, .print-recipe-action-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.share-recipe-action-btn:hover {
+  background: var(--primary-glow);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.print-recipe-action-btn:hover {
+  background: rgba(139, 92, 246, 0.08);
+  color: #8b5cf6;
+  border-color: #8b5cf6;
+}
+
+/* Print recipe overrides */
+@media print {
+  .print-recipe-page {
+    color: #000 !important;
+    background: #fff !important;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    padding: 2rem;
+  }
+  .print-recipe-page h1 {
+    font-size: 2.2rem;
+    margin: 0 0 1rem 0;
+    color: #000 !important;
+  }
+  .print-meta-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: #444 !important;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+  }
+  .print-recipe-image {
+    max-width: 320px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .print-section-block {
+    margin-bottom: 1.5rem;
+  }
+  .print-section-block h3 {
+    margin: 0 0 0.75rem 0;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.25rem;
+    font-size: 1.25rem;
+    color: #000 !important;
+  }
+  .print-section-block ul, .print-section-block ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .print-section-block li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+}
+
 
 
 

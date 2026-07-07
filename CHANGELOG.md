@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-07-06
+
+### Added
+- Created [src/utils/sharingUtils.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/sharingUtils.js) for UTF-8 safe Base64 encoding of custom recipes in URL query parameters, and ID reference formatting for standard recipes.
+- Created [tests/utils/sharingUtils.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/utils/sharingUtils.test.js) asserting query builders, parameter parsing, and decoding.
+- Added `fetchRecipeById` lookup endpoint to [src/services/apiService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/apiService.js) with test coverage in [tests/services/apiService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/apiService.test.js) (67 unit tests total).
+
+### Changed
+- Refactored [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) to parse incoming shared links on startup, automatically importing custom recipes or fetching external reference IDs, and clearing parameters from address bar.
+- Refactored [src/App.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.jsx) and [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css) to support printable recipe cards (`@media print` formatted sheets) and consolidated shopping lists.
+- Updated [src/components/RecipeCard.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeCard.jsx) and [src/components/RecipeList.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeList.jsx) to mount print and copy-link share button controls.
+
 ## [1.7.0] - 2026-07-06
 
 ### Added

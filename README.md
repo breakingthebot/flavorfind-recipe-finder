@@ -47,7 +47,9 @@ The application is structured around a strict separation of concerns, decoupling
   - `src/utils/filterUtils.js`: Handles string normalization, strict matching, and dietary filters.
   - `src/utils/shoppingListUtils.js`: Normalizes units, evaluates fractional quantities, assigns departments, and aggregates duplicate ingredients.
   - `src/utils/cookModeUtils.js`: Extracts step instruction durations (seconds) using RegEx patterns.
-- **Logging (`src/utils/logger.js`)**: A custom level-based logger (DEBUG, INFO, WARN, ERROR) used to track application flow and debug state mutations cleanly without standard `console.log` pollution.
+- **Logging & Utilities (`src/utils/`)**:
+  - `src/utils/logger.js`: A custom level-based logger (DEBUG, INFO, WARN, ERROR) used to track application flow and debug state mutations cleanly without standard `console.log` pollution.
+  - `src/utils/sharingUtils.js`: Packages custom recipes into Base64 query URLs and parses ID reference lookups for keyless client-side sharing.
 - **Services**:
   - `src/services/recipeService.js`: Handles combined recipe search and favorites indexing synced to `localStorage`.
   - `src/services/inventoryService.js`: Operates CRUD storage and expiration day math for local fridge inventory items.
@@ -68,6 +70,6 @@ The application is structured around a strict separation of concerns, decoupling
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (61 total unit tests).
+- 100% test coverage on the utility, model, and service layers (67 total unit tests).
 
 

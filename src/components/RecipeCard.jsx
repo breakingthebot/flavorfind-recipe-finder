@@ -13,8 +13,10 @@ import React, { useState } from 'react';
  * @param {boolean} props.isFav - Whether the recipe is in the favorites list.
  * @param {Function} props.onToggleFav - Callback function to toggle favorite status.
  * @param {Function} [props.onDelete] - Callback function to delete a custom recipe.
+ * @param {Function} [props.onShare] - Callback function to share a recipe.
+ * @param {Function} [props.onPrint] - Callback function to print a recipe.
  */
-export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCook }) {
+export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCook, onShare, onPrint }) {
   const [showInstructions, setShowInstructions] = useState(false);
 
   const getDifficultyClass = (diff) => {
@@ -126,6 +128,24 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCoo
             {showInstructions ? 'Hide Instructions' : 'Show Instructions'}
           </button>
           
+          <button
+            className="share-recipe-action-btn"
+            onClick={() => onShare && onShare(recipe)}
+            title="Copy share link"
+            id={`share-recipe-${recipe.id}`}
+          >
+            🔗 Share
+          </button>
+
+          <button
+            className="print-recipe-action-btn"
+            onClick={() => onPrint && onPrint(recipe)}
+            title="Print recipe"
+            id={`print-recipe-${recipe.id}`}
+          >
+            🖨️ Print
+          </button>
+
           <button
             className="start-cooking-btn"
             onClick={() => onCook && onCook(recipe)}

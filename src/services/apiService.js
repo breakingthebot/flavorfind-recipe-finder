@@ -122,3 +122,119 @@ export async function searchExternalRecipes(query) {
     return [];
   }
 }
+
+/**
+ * Fetches a single external recipe by its ID.
+ * 
+ * @param {string} id - The prefixed external recipe ID (e.g. 'external_mealdb_52777').
+ * @returns {Promise<Object|null>} The mapped recipe object, or null if not found.
+ */
+export async function fetchRecipeById(id) {
+  if (!id) return null;
+
+  if (id.startsWith('external_spoon_')) {
+    const rawId = id.replace('external_spoon_', '');
+    const apiKey = import.meta.env.VITE_SPOONACULAR_API_KEY;
+    if (!apiKey) {
+      logger.warn('Cannot fetch Spoonacular details - missing API key');
+      return null;
+    }
+    logger.info('Fetching Spoonacular details for ID', { rawId });
+    try {
+      const response = await fetch(
+        `https://api.spoonacular.com/recipes/${rawId}/information?fillIngredients=true&apiKey=${apiKey}`
+      );
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const r = await response.json();
+
+      const ingredients = (r.extendedIngredients || []).map(ing => ({
+        name: ing.name ? ing.name.toLowerCase().trim() : '',
+        quantity: ing.original || `${ing.amount || ''} ${ing.unit || ''}`.trim()
+      })).filter(ing => ing.name.length > 0);
+
+      let instructions = [];
+      if (r.analyzedInstructions && r.analyzedInstructions.length > 0) {
+        instructions = (r.analyzedInstructions[0].steps || []).map(s => s.step);
+      } else if (r.instructions) {
+        instructions = r.instructions
+          .split('.')
+          .map(line => line.trim())
+          .filter(line => line.length > 0);
+      }
+
+      const dietary = [];
+      if (r.vegetarian) dietary.push('vegetarian');
+      if (r.vegan) dietary.push('vegan');
+      if (r.glutenFree) dietary.push('gluten-free');
+      if (r.dairyFree) dietary.push('dairy-free');
+
+      return {
+        id,
+        name: r.title || 'Untitled Recipe',
+        ingredients,
+        instructions: instructions.length > 0 ? instructions : ['Prepare ingredients and cook to taste.'],
+        prepTime: Math.max(5, Math.round(r.readyInMinutes * 0.4)) || 15,
+        cookTime: Math.max(5, Math.round(r.readyInMinutes * 0.6)) || 20,
+        servings: r.servings || 4,
+        difficulty: r.readyInMinutes > 40 ? 'Hard' : r.readyInMinutes > 20 ? 'Medium' : 'Easy',
+        dietary,
+        imageUrl: r.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600'
+      };
+    } catch (err) {
+      logger.error('Failed to fetch Spoonacular detail', { id, error: err.message });
+      return null;
+    }
+  }
+
+  if (id.startsWith('external_mealdb_')) {
+    const rawId = id.replace('external_mealdb_', '');
+    logger.info('Fetching TheMealDB details for ID', { rawId });
+    try {
+      const response = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${rawId}`
+      );
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      const meal = data.meals ? data.meals[0] : null;
+      if (!meal) return null;
+
+      const ingredients = [];
+      for (let i = 1; i <= 20; i++) {
+        const ingredientName = meal[`strIngredient${i}`];
+        const measure = meal[`strMeasure${i}`];
+        if (ingredientName && ingredientName.trim().length > 0) {
+          ingredients.push({
+            name: ingredientName.toLowerCase().trim(),
+            quantity: measure && measure.trim().length > 0 ? measure.trim() : 'to taste'
+          });
+        }
+      }
+
+      const instructions = meal.strInstructions
+        ? meal.strInstructions
+            .split(/\r?\n/)
+            .map(line => line.trim().replace(/^\d+\.\s*/, ''))
+            .filter(line => line.length > 0)
+        : ['Follow general preparation steps.'];
+
+      return {
+        id,
+        name: meal.strMeal || 'Untitled Meal',
+        ingredients,
+        instructions,
+        prepTime: 15,
+        cookTime: 25,
+        servings: 4,
+        difficulty: 'Medium',
+        dietary: [],
+        imageUrl: meal.strMealThumb || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600'
+      };
+    } catch (err) {
+      logger.error('Failed to fetch TheMealDB detail', { id, error: err.message });
+      return null;
+    }
+  }
+
+  return null;
+}
+

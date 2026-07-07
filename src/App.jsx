@@ -32,7 +32,12 @@ import {
   clearMealPlan 
 } from './services/plannerService.js';
 import { scoreRecipeByInventory } from './utils/filterUtils.js';
-import { searchExternalRecipes } from './services/apiService.js';
+import { searchExternalRecipes, fetchRecipeById } from './services/apiService.js';
+import { 
+  generateShareLink, 
+  parseShareParameters, 
+  clearQueryParams 
+} from './utils/sharingUtils.js';
 import { logger } from './utils/logger.js';
 import './App.css';
 
@@ -53,6 +58,9 @@ export default function App() {
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
   const [mealPlan, setMealPlan] = useState({});
   const [isSearchingExternal, setIsSearchingExternal] = useState(false);
+  
+  // Printing and Sharing States
+  const [printData, setPrintData] = useState(null);
   
   // Shopping list selection state (array of recipe IDs)
   const [selectedRecipesForList, setSelectedRecipesForList] = useState([]);
@@ -79,6 +87,59 @@ export default function App() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Hook for parsing incoming shared recipe links on startup
+  const hasParsedRef = useRef(false);
+  useEffect(() => {
+    if (hasParsedRef.current) return;
+
+    const parsed = parseShareParameters();
+    if (parsed) {
+      hasParsedRef.current = true;
+      if (parsed.type === 'custom') {
+        try {
+          addCustomRecipe(parsed.data);
+          loadData();
+          showToast(`✨ Added shared recipe: "${parsed.data.name}"!`);
+          clearQueryParams();
+        } catch (err) {
+          showToast(`Failed to import shared recipe: ${err.message}`, 'error');
+        }
+      } else if (parsed.type === 'reference') {
+        const targetId = parsed.data;
+        const allLocal = getRecipes();
+        const found = allLocal.find(r => r.id === targetId);
+        if (found) {
+          handleStartCooking(found);
+          showToast(`👨‍🍳 Started Cook Mode for shared recipe!`);
+          clearQueryParams();
+        } else {
+          logger.info('Fetching shared external recipe details', { targetId });
+          fetchRecipeById(targetId)
+            .then(fetchedRecipe => {
+              if (fetchedRecipe) {
+                handleStartCooking(fetchedRecipe);
+                showToast(`👨‍🍳 Started Cook Mode for shared recipe!`);
+                clearQueryParams();
+              } else {
+                showToast('Failed to load shared recipe details.', 'error');
+              }
+            })
+            .catch(err => {
+              logger.error('Failed to import referenced sharing recipe', { error: err.message });
+            });
+        }
+      }
+    }
+  }, [loadData, showToast]);
+
+  // Hook for triggering printable layouts
+  useEffect(() => {
+    if (printData) {
+      window.print();
+      setPrintData(null);
+    }
+  }, [printData]);
 
   // Synchronize selection state with favorites
   useEffect(() => {
@@ -236,6 +297,21 @@ export default function App() {
     showToast('Autofilled search query from fridge!');
   };
 
+  // Handle sharing a recipe link
+  const handleShareRecipe = (recipe) => {
+    const link = generateShareLink(recipe);
+    if (link) {
+      navigator.clipboard.writeText(link)
+        .then(() => showToast('Recipe link copied to clipboard!'))
+        .catch(() => showToast('Failed to copy link.', 'error'));
+    }
+  };
+
+  // Handle printing a recipe
+  const handlePrintRecipe = (recipe) => {
+    setPrintData({ type: 'recipe', data: recipe });
+  };
+
   // Handle planning a meal in the weekly calendar
   const handlePlanMeal = (day, mealType, recipeId) => {
     try {
@@ -365,6 +441,8 @@ export default function App() {
             onToggleFav={handleToggleFav} 
             onDelete={handleDeleteRecipe}
             onCook={handleStartCooking}
+            onShare={handleShareRecipe}
+            onPrint={handlePrintRecipe}
           />
         </section>
       </main>
@@ -428,6 +506,49 @@ export default function App() {
         onClearPlan={handleClearPlan}
         onGenerateShoppingList={handleGeneratePlannerList}
       />
+
+      {/* Printable Sheet overlay */}
+      {printData && (
+        <div id="print-section" className="print-friendly print-only">
+          {printData.type === 'recipe' && (
+            <div className="print-recipe-page">
+              <h1>{printData.data.name}</h1>
+              <div className="print-meta-row">
+                <span>⏱️ Prep: {printData.data.prepTime} mins</span>
+                <span>🔥 Cook: {printData.data.cookTime} mins</span>
+                <span>👥 Servings: {printData.data.servings}</span>
+                <span>📈 Difficulty: {printData.data.difficulty}</span>
+              </div>
+              
+              {printData.data.imageUrl && (
+                <img src={printData.data.imageUrl} alt={printData.data.name} className="print-recipe-image" />
+              )}
+              
+              <div className="print-section-block">
+                <h3>🛒 Ingredients</h3>
+                <ul>
+                  {printData.data.ingredients.map((ing, idx) => (
+                    <li key={idx}>
+                      <span className="print-checkbox">☐</span> {ing}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="print-section-block">
+                <h3>👨‍🍳 Instructions</h3>
+                <ol>
+                  {printData.data.instructions.map((step, idx) => (
+                    <li key={idx}>
+                      <span className="print-checkbox">☐</span> {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="app-footer">
