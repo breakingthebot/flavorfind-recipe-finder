@@ -59,6 +59,7 @@ The application is structured around a strict separation of concerns, decoupling
   - `src/services/apiService.js`: Operates external recipe queries (via Spoonacular or keyless TheMealDB).
   - `src/services/conversionService.js`: Operates weights, volumes, and temperature conversions, and fuzzy substitutions advisor.
   - `src/services/speechSynthesisService.js`: Manages text-to-speech configuration (voices, rate, pitch) and step narration playbacks.
+  - `src/services/nutritionService.js`: Estimates recipe macronutrients and sodium content using offline keyword indexes, portion scales, and yield counts.
 - **Components (`src/components/`)**: Atomic, reusable React components:
   - `RecipeCard`: Handles card detail layout, custom deletion buttons, step accordions, expired/expiring warnings, and drag-and-drop triggers.
   - `RecipeList`: Maps recipes to the layout and manages the empty search state.
@@ -73,6 +74,6 @@ The application is structured around a strict separation of concerns, decoupling
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (96 total unit tests).
+- 100% test coverage on the utility, model, and service layers (100 total unit tests).
 
 

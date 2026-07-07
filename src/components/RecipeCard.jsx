@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { scaleIngredient } from '../utils/portionsScaler.js';
+import { estimateRecipeNutrition } from '../services/nutritionService.js';
 
 /**
  * RecipeCard Component.
@@ -20,6 +21,7 @@ import { scaleIngredient } from '../utils/portionsScaler.js';
 export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCook, onShare, onPrint }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [portionsScale, setPortionsScale] = useState(1);
+  const [showNutrition, setShowNutrition] = useState(false);
 
   const getDifficultyClass = (diff) => {
     switch (diff.toLowerCase()) {
@@ -137,6 +139,78 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCoo
               </li>
             ))}
           </ul>
+
+          <button 
+            onClick={() => setShowNutrition(!showNutrition)}
+            className="toggle-nutrition-link-btn"
+            id={`toggle-nutrition-${recipe.id}`}
+            style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.8rem', padding: '0.5rem 0 0 0', fontWeight: 600, display: 'block', textDecoration: 'underline', outline: 'none' }}
+          >
+            {showNutrition ? '✕ Hide Nutrition Facts' : '📋 View Nutrition Facts'}
+          </button>
+
+          {showNutrition && (() => {
+            const nutrition = estimateRecipeNutrition(recipe.ingredients, 2, portionsScale);
+            const fatDv = Math.round((nutrition.fat / 65) * 100);
+            const satFat = Math.round(nutrition.fat * 0.2);
+            const satFatDv = Math.round((satFat / 20) * 100);
+            const sodiumDv = Math.round((nutrition.sodium / 2400) * 100);
+            const carbsDv = Math.round((nutrition.carbs / 300) * 100);
+            const fiberDv = Math.round((nutrition.fiber / 25) * 100);
+            return (
+              <div className="nutrition-facts-label" id={`nutrition-label-${recipe.id}`}>
+                <div className="nf-header">Nutrition Facts</div>
+                <div className="nf-sub-header">2 servings per recipe</div>
+                <div className="nf-serving-size">Serving size: <strong>1 serving (scaled)</strong></div>
+                <div className="nf-divider thick"></div>
+                <div className="nf-amount-per-serving">Amount per serving</div>
+                <div className="nf-row nf-calories-row">
+                  <span className="nf-label-large">Calories</span>
+                  <span className="nf-value-large">{nutrition.kcal}</span>
+                </div>
+                <div className="nf-divider medium"></div>
+                <div className="nf-dv-header">% Daily Value *</div>
+                <div className="nf-divider thin"></div>
+                
+                <div className="nf-row">
+                  <span><strong>Total Fat</strong> {nutrition.fat}g</span>
+                  <span><strong>{fatDv}%</strong></span>
+                </div>
+                <div className="nf-divider thin"></div>
+                <div className="nf-row nf-sub-row">
+                  <span>Saturated Fat {satFat}g</span>
+                  <span><strong>{satFatDv}%</strong></span>
+                </div>
+                <div className="nf-divider thin"></div>
+                
+                <div className="nf-row">
+                  <span><strong>Sodium</strong> {nutrition.sodium}mg</span>
+                  <span><strong>{sodiumDv}%</strong></span>
+                </div>
+                <div className="nf-divider thin"></div>
+                
+                <div className="nf-row">
+                  <span><strong>Total Carbohydrate</strong> {nutrition.carbs}g</span>
+                  <span><strong>{carbsDv}%</strong></span>
+                </div>
+                <div className="nf-divider thin"></div>
+                <div className="nf-row nf-sub-row">
+                  <span>Dietary Fiber {nutrition.fiber}g</span>
+                  <span><strong>{fiberDv}%</strong></span>
+                </div>
+                <div className="nf-divider thin"></div>
+                
+                <div className="nf-row">
+                  <span><strong>Protein</strong> {nutrition.protein}g</span>
+                  <span></span>
+                </div>
+                <div className="nf-divider thick"></div>
+                <div className="nf-footer-note">
+                  * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="recipe-actions-row">

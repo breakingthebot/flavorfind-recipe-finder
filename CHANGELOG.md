@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-07-07
+
+### Added
+- Created [src/services/nutritionService.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/services/nutritionService.js) to estimate recipe macronutrients (Calories, Protein, Carbs, Fats, Fiber) and Sodium content.
+- Created [tests/services/nutritionService.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/services/nutritionService.test.js) validating Calories calculations, portion scaling, and unlisted item defaults (bringing total tests to 100 passing).
+
+### Changed
+- Integrated an expandable US FDA-style Nutrition Facts label card inside [src/components/RecipeCard.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeCard.jsx) dynamically rendering nutrition parameters per serving.
+- Appended visual styling rules for the black/white border dividers and footnotes of the FDA label to [src/App.css](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/App.css).
+
 ## [1.13.0] - 2026-07-07
 
 ### Added

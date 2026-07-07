@@ -2857,6 +2857,104 @@
   }
 }
 
+/* US FDA-style Nutrition Facts Label */
+.nutrition-facts-label {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 1rem;
+  border-radius: var(--border-radius-sm);
+  font-family: 'Outfit', 'Inter', sans-serif;
+  color: var(--text-h);
+  width: 100%;
+  max-width: 280px;
+  margin-top: 1rem;
+  box-sizing: border-box;
+}
+
+.nf-header {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-h);
+}
+
+.nf-sub-header {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.nf-serving-size {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+}
+
+.nf-divider {
+  background-color: var(--text-h);
+  margin: 0.5rem 0;
+}
+
+.nf-divider.thick {
+  height: 8px;
+}
+
+.nf-divider.medium {
+  height: 4px;
+}
+
+.nf-divider.thin {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nf-amount-per-serving {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.nf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  padding: 0.2rem 0;
+}
+
+.nf-row.nf-sub-row {
+  padding-left: 1rem;
+}
+
+.nf-row.nf-calories-row {
+  font-size: 1.25rem;
+  padding: 0.25rem 0;
+}
+
+.nf-label-large {
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+.nf-value-large {
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.nf-dv-header {
+  text-align: right;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.nf-footer-note {
+  font-size: 0.65rem;
+  line-height: 1.25;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
 
 
 
