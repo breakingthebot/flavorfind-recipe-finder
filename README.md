@@ -50,6 +50,7 @@ The application is structured around a strict separation of concerns, decoupling
 - **Logging & Utilities (`src/utils/`)**:
   - `src/utils/logger.js`: A custom level-based logger (DEBUG, INFO, WARN, ERROR) used to track application flow and debug state mutations cleanly without standard `console.log` pollution.
   - `src/utils/sharingUtils.js`: Packages custom recipes into Base64 query URLs and parses ID reference lookups for keyless client-side sharing.
+  - `src/utils/portionsScaler.js`: Parses, formats, and scales recipe ingredient quantity values based on select multiplier yields.
 - **Services**:
   - `src/services/recipeService.js`: Handles combined recipe search and favorites indexing synced to `localStorage`.
   - `src/services/inventoryService.js`: Operates CRUD storage and expiration day math for local fridge inventory items.
@@ -72,6 +73,6 @@ The application is structured around a strict separation of concerns, decoupling
 
 ## Notes
 - Built using React 19 and Vite 8, featuring high HMR speeds.
-- 100% test coverage on the utility, model, and service layers (85 total unit tests).
+- 100% test coverage on the utility, model, and service layers (96 total unit tests).
 
 

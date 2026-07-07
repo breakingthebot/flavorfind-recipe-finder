@@ -23,6 +23,7 @@ import {
   stopSpeaking 
 } from '../services/speechSynthesisService.js';
 import { logger } from '../utils/logger.js';
+import { scaleIngredient } from '../utils/portionsScaler.js';
 
 /**
  * CookModeModal Component.
@@ -40,6 +41,7 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
   const [timerAlert, setTimerAlert] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [portionsScale, setPortionsScale] = useState(recipe?.currentScale || 1);
 
   // Configuration States
   const [voiceConfig, setVoiceConfig] = useState(getVoiceConfig());
@@ -66,6 +68,13 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
       synth.onvoiceschanged = null;
     };
   }, []);
+
+  // Sync portionsScale when modal opens or recipe shifts
+  useEffect(() => {
+    if (isOpen && recipe) {
+      setPortionsScale(recipe.currentScale || 1);
+    }
+  }, [isOpen, recipe]);
 
   // Sync temporary settings when settings modal is opened
   useEffect(() => {
@@ -780,6 +789,37 @@ export default function CookModeModal({ isOpen, onClose, recipe }) {
             </div>
             
             <div className="cook-settings-body">
+              {/* Recipe Ingredients (Scaled) Section */}
+              <div className="tools-section">
+                <div className="ingredients-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <h4 style={{ margin: 0 }}>📋 Recipe Ingredients (Scaled)</h4>
+                  <div className="portions-scaler-control" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <label htmlFor="cook-portions-scale" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Yield:</label>
+                    <select
+                      id="cook-portions-scale"
+                      value={portionsScale}
+                      onChange={(e) => setPortionsScale(Number(e.target.value))}
+                      className="portions-select-compact"
+                      style={{ padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-h)', cursor: 'pointer' }}
+                    >
+                      <option value={0.5}>0.5x</option>
+                      <option value={1}>1x</option>
+                      <option value={2}>2x</option>
+                      <option value={3}>3x</option>
+                      <option value={4}>4x</option>
+                    </select>
+                  </div>
+                </div>
+
+                <ul className="recipe-ingredients-list" style={{ paddingLeft: '1.25rem', marginBottom: '1.5rem', listStyleType: 'disc' }}>
+                  {(recipe.ingredients || []).map((ing, idx) => (
+                    <li key={idx} className="recipe-ingredient-item" style={{ fontSize: '0.95rem', color: 'var(--text-h)', marginBottom: '0.35rem' }}>
+                      {scaleIngredient(ing, portionsScale)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
               {/* Unit Converter Section */}
               <div className="tools-section">
                 <h4>⚖️ Measurement Converter</h4>

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-07-07
+
+### Added
+- Created [src/utils/portionsScaler.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/utils/portionsScaler.js) to parse decimals, fractions, and mixed numbers from ingredient descriptions and scale quantities.
+- Created [tests/utils/portionsScaler.test.js](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/tests/utils/portionsScaler.test.js) validating scale factors, fraction formatting, and mixed fractional bounds (bringing total tests to 96 passing).
+
+### Changed
+- Integrated portion scaling dropdown selector inside [src/components/RecipeCard.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/RecipeCard.jsx) to dynamically multiply/divide quantities in the ingredients card detail.
+- Synchronized selected portions multiplier into [src/components/CookModeModal.jsx](file:///C:/Users/marve/Desktop/AI-286-Builds/Build_25/src/components/CookModeModal.jsx) when launching Cook Mode.
+- Rendered scaled ingredients list and yield dropdown configurator inside the Kitchen Tools overlay panel in Cook Mode.
+
 ## [1.12.0] - 2026-07-06
 
 ### Added

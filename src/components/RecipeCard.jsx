@@ -4,6 +4,7 @@
 // Created: 2026-07-06
 
 import React, { useState } from 'react';
+import { scaleIngredient } from '../utils/portionsScaler.js';
 
 /**
  * RecipeCard Component.
@@ -18,6 +19,7 @@ import React, { useState } from 'react';
  */
 export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCook, onShare, onPrint }) {
   const [showInstructions, setShowInstructions] = useState(false);
+  const [portionsScale, setPortionsScale] = useState(1);
 
   const getDifficultyClass = (diff) => {
     switch (diff.toLowerCase()) {
@@ -109,11 +111,29 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCoo
         )}
 
         <div className="recipe-ingredients-section">
-          <h4>Ingredients:</h4>
+          <div className="ingredients-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <h4 style={{ margin: 0 }}>Ingredients:</h4>
+            <div className="portions-scaler-control" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label htmlFor={`portions-scale-${recipe.id}`} style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Scale:</label>
+              <select
+                id={`portions-scale-${recipe.id}`}
+                value={portionsScale}
+                onChange={(e) => setPortionsScale(Number(e.target.value))}
+                className="portions-select-compact"
+                style={{ padding: '0.2rem 0.4rem', fontSize: '0.8rem', borderRadius: '4px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-h)', cursor: 'pointer' }}
+              >
+                <option value={0.5}>0.5x</option>
+                <option value={1}>1x</option>
+                <option value={2}>2x</option>
+                <option value={3}>3x</option>
+                <option value={4}>4x</option>
+              </select>
+            </div>
+          </div>
           <ul className="recipe-ingredients-list">
             {recipe.ingredients.map((ing, idx) => (
               <li key={idx} className="recipe-ingredient-item">
-                <span className="bullet"></span> {ing}
+                <span className="bullet"></span> {scaleIngredient(ing, portionsScale)}
               </li>
             ))}
           </ul>
@@ -148,7 +168,7 @@ export default function RecipeCard({ recipe, isFav, onToggleFav, onDelete, onCoo
 
           <button
             className="start-cooking-btn"
-            onClick={() => onCook && onCook(recipe)}
+            onClick={() => onCook && onCook({ ...recipe, currentScale: portionsScale })}
             id={`start-cooking-${recipe.id}`}
           >
             👨‍🍳 Cook Mode
